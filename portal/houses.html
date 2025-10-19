@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домики сообщества - HPG Community</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: url('assets/background01.jpg') center/cover fixed no-repeat;
+            background-color: #5a9e9e;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a9d9d 0%, #2d7a7a 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(74, 157, 157, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 157, 157, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(74, 157, 157, 0.15);
+            color: #2d7a7a;
+            border: 2px solid rgba(74, 157, 157, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(74, 157, 157, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero p {
+            font-size: 20px;
+            opacity: 0.95;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .filters {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .houses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .house-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .house-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .house-cover {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .house-body {
+            padding: 20px;
+        }
+
+        .house-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .house-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .house-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #999;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .house-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .house-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .house-author-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4a9d9d;
+        }
+
+        .house-author-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Шапка -->
+    <div class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🌱</span>
+                <span>HPG Community</span>
+            </a>
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-secondary">
+                    📚 Каталог профилей
+                </a>
+                <button id="create-house-btn" class="btn btn-primary" onclick="showCreateHouseForm()" style="display: none;">
+                    ➕ Создать домик
+                </button>
+                <button id="login-btn" class="btn btn-primary" onclick="loginWithGoogle()" style="display: none;">
+                    🔐 Войти
+                </button>
+                <div id="user-info" style="display: none; align-items: center; gap: 10px;">
+                    <img id="user-avatar" style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none;" alt="">
+                    <span id="user-name" style="font-size: 13px; font-weight: 500;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер -->
+    <div class="container">
+        <!-- Герой -->
+        <div class="hero">
+            <h1>🏠 Домики сообщества</h1>
+            <p>Персональные пространства для журналов выращивания и историй успеха</p>
+        </div>
+
+        <!-- Фильтры -->
+        <div class="filters">
+            <div class="filters-row">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Поиск по названию или описанию...">
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <select id="sortSelect" class="filter-select">
+                    <option value="date">По дате ↓</option>
+                    <option value="posts">По активности ↓</option>
+                    <option value="subscribers">По популярности ↓</option>
+                    <option value="name">По названию ↑</option>
+                </select>
+
+                <div class="stats">
+                    <span id="housesCount">Загрузка...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сетка домиков -->
+        <div id="housesContainer">
+            <div class="loading">Загрузка домиков...</div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR5qXMGP8Erapla69wJ7cUbbF4MNlbkcY",
+            authDomain: "wega-hpg.firebaseapp.com",
+            projectId: "wega-hpg",
+            storageBucket: "wega-hpg.firebasestorage.app",
+            messagingSenderId: "652081809935",
+            appId: "1:652081809935:web:84a407f1a6bfc719aa717a",
+            measurementId: "G-W6EDZTWP3F"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let allHouses = [];
+        let filteredHouses = [];
+
+        // Авторизация
+        async function loginWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                alert('❌ Ошибка входа: ' + error.message);
+            }
+        }
+
+        // Отслеживание авторизации
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            
+            if (user) {
+                document.getElementById('login-btn').style.display = 'none';
+                document.getElementById('create-house-btn').style.display = 'block';
+                document.getElementById('user-info').style.display = 'flex';
+                document.getElementById('user-avatar').style.display = 'block';
+                document.getElementById('user-avatar').src = user.photoURL || '';
+                document.getElementById('user-name').textContent = user.displayName || user.email;
+            } else {
+                document.getElementById('login-btn').style.display = 'block';
+                document.getElementById('create-house-btn').style.display = 'none';
+                document.getElementById('user-info').style.display = 'none';
+                document.getElementById('user-avatar').style.display = 'none';
+            }
+            
+            loadHouses();
+        });
+
+        // Загрузка домиков
+        async function loadHouses() {
+            try {
+                const snapshot = await db.collection('houses')
+                    .orderBy('created', 'desc')
+                    .get();
+
+                allHouses = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                filteredHouses = [...allHouses];
+                renderHouses();
+
+            } catch (error) {
+                console.error('Ошибка загрузки домиков:', error);
+                document.getElementById('housesContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h2>Ошибка загрузки</h2>
+                        <p>Не удалось загрузить домики. Проверьте подключение к интернету.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Отрисовка домиков
+        function renderHouses() {
+            const container = document.getElementById('housesContainer');
+            const housesCount = document.getElementById('housesCount');
+
+            if (filteredHouses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏚️</div>
+                        <h2>Пока нет домиков</h2>
+                        <p>Будьте первым, кто создаст свой домик!</p>
+                        ${currentUser ? '<button class="btn btn-primary" onclick="showCreateHouseForm()">➕ Создать домик</button>' : ''}
+                    </div>
+                `;
+                housesCount.textContent = '0 домиков';
+                return;
+            }
+
+            housesCount.textContent = `${filteredHouses.length} ${getHouseWord(filteredHouses.length)}`;
+
+            const grid = document.createElement('div');
+            grid.className = 'houses-grid';
+
+            filteredHouses.forEach(house => {
+                const card = createHouseCard(house);
+                grid.appendChild(card);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(grid);
+        }
+
+        // Создание карточки домика
+        function createHouseCard(house) {
+            const card = document.createElement('div');
+            card.className = 'house-card';
+            card.onclick = () => openHouse(house.id);
+
+            const date = house.created?.toDate().toLocaleDateString('ru-RU') || '';
+            const author = house.userName || 'Аноним';
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=32&background=667eea&color=fff`;
+
+            card.innerHTML = `
+                ${house.coverImageUrl ? `
+                    <img src="${escapeHtml(house.coverImageUrl)}" class="house-cover" alt="${escapeHtml(house.name)}">
+                ` : `
+                    <div class="house-cover"></div>
+                `}
+                <div class="house-body">
+                    <div class="house-author">
+                        <img src="${avatarUrl}" class="house-author-avatar" alt="${escapeHtml(author)}">
+                        <span class="house-author-name">${escapeHtml(author)}</span>
+                    </div>
+                    <div class="house-title">
+                        🏠 ${escapeHtml(house.name)}
+                    </div>
+                    ${house.description ? `
+                        <div class="house-description">
+                            ${escapeHtml(house.description)}
+                        </div>
+                    ` : ''}
+                    <div class="house-meta">
+                        <div class="house-meta-item">
+                            📅 ${date}
+                        </div>
+                        <div class="house-meta-item">
+                            📝 ${house.postsCount || 0} постов
+                        </div>
+                        <div class="house-meta-item">
+                            👥 ${house.subscribersCount || 0}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Открыть домик
+        function openHouse(houseId) {
+            window.location.href = `house.html?id=${houseId}`;
+        }
+
+        // Показать форму создания домика
+        function showCreateHouseForm() {
+            if (!currentUser) {
+                alert('Войдите, чтобы создать домик');
+                return;
+            }
+            alert('Форма создания домика - в разработке...');
+        }
+
+        // Вспомогательные функции
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getHouseWord(count) {
+            const lastDigit = count % 10;
+            const lastTwoDigits = count % 100;
+            
+            if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+                return 'домиков';
+            }
+            if (lastDigit === 1) {
+                return 'домик';
+            }
+            if (lastDigit >= 2 && lastDigit <= 4) {
+                return 'домика';
+            }
+            return 'домиков';
+        }
+
+        // Поиск
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            filteredHouses = allHouses.filter(house => {
+                return house.name.toLowerCase().includes(query) ||
+                       (house.description && house.description.toLowerCase().includes(query));
+            });
+            renderHouses();
+        });
+
+        // Сортировка
+        document.getElementById('sortSelect').addEventListener('change', function(e) {
+            const sortBy = e.target.value;
+            
+            filteredHouses.sort((a, b) => {
+                if (sortBy === 'date') {
+                    return (b.created?.toMillis() || 0) - (a.created?.toMillis() || 0);
+                } else if (sortBy === 'posts') {
+                    return (b.postsCount || 0) - (a.postsCount || 0);
+                } else if (sortBy === 'subscribers') {
+                    return (b.subscribersCount || 0) - (a.subscribersCount || 0);
+                } else if (sortBy === 'name') {
+                    return a.name.localeCompare(b.name);
+                }
+                return 0;
+            });
+            
+            renderHouses();
+        });
+    </script>
+</body>
+</html>

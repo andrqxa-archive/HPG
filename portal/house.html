@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домик - HPG Community</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+    
+    <!-- Markdown библиотека -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: url('assets/background01.jpg') center/cover fixed no-repeat;
+            background-color: #5a9e9e;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a9d9d 0%, #2d7a7a 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(74, 157, 157, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 157, 157, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(74, 157, 157, 0.15);
+            color: #2d7a7a;
+            border: 2px solid rgba(74, 157, 157, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(74, 157, 157, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Шапка домика */
+        .house-header {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .house-cover-container {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .house-cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .house-info {
+            padding: 30px;
+        }
+
+        .house-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .house-description {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .house-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .house-author-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .house-author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3px solid #4a9d9d;
+        }
+
+        .house-author-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .house-author-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .house-author-label {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .house-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .house-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .house-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Посты */
+        .posts-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .posts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .posts-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-item {
+            padding: 25px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #4a9d9d;
+        }
+
+        .post-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-author-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #4a9d9d;
+        }
+
+        .post-author-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .post-date {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .post-content {
+            color: #333;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        /* Markdown стили */
+        .post-content h1,
+        .post-content h2,
+        .post-content h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2d7a7a;
+        }
+
+        .post-content h1 {
+            font-size: 24px;
+        }
+
+        .post-content h2 {
+            font-size: 20px;
+        }
+
+        .post-content h3 {
+            font-size: 18px;
+        }
+
+        .post-content p {
+            margin-bottom: 12px;
+        }
+
+        .post-content ul,
+        .post-content ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .post-content li {
+            margin-bottom: 6px;
+        }
+
+        .post-content code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .post-content pre {
+            background: #2d2d2d;
+            color: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+        }
+
+        .post-content pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid #4a9d9d;
+            padding-left: 15px;
+            margin: 15px 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        .post-content a {
+            color: #4a9d9d;
+            text-decoration: none;
+            border-bottom: 1px solid #4a9d9d;
+        }
+
+        .post-content a:hover {
+            color: #2d7a7a;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: #2d7a7a;
+        }
+
+        .post-content em {
+            font-style: italic;
+        }
+
+        .post-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .post-photo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .post-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .post-profiles {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .post-profiles-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .post-profiles-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .post-profile-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #4a9d9d;
+            border-radius: 6px;
+            color: #4a9d9d;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .post-profile-link:hover {
+            background: #4a9d9d;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Шапка -->
+    <div class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🌱</span>
+                <span>HPG Community</span>
+            </a>
+            <div class="header-actions">
+                <a href="houses.html" class="btn btn-secondary">
+                    ← К домикам
+                </a>
+                <button id="login-btn" class="btn btn-primary" onclick="loginWithGoogle()" style="display: none;">
+                    🔐 Войти
+                </button>
+                <div id="user-info" style="display: none; align-items: center; gap: 10px;">
+                    <img id="user-avatar" style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none;" alt="">
+                    <span id="user-name" style="font-size: 13px; font-weight: 500;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер -->
+    <div class="container">
+        <!-- Шапка домика -->
+        <div id="houseHeader" class="loading">Загрузка...</div>
+
+        <!-- Посты -->
+        <div id="postsSection" style="display: none;" class="posts-section">
+            <div class="posts-header">
+                <h2 class="posts-title">📝 Журнал событий</h2>
+                <button id="create-post-btn" class="btn btn-primary" onclick="showCreatePostForm()" style="display: none;">
+                    ➕ Новый пост
+                </button>
+            </div>
+            <div id="postsContainer">
+                <div class="loading">Загрузка постов...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR5qXMGP8Erapla69wJ7cUbbF4MNlbkcY",
+            authDomain: "wega-hpg.firebaseapp.com",
+            projectId: "wega-hpg",
+            storageBucket: "wega-hpg.firebasestorage.app",
+            messagingSenderId: "652081809935",
+            appId: "1:652081809935:web:84a407f1a6bfc719aa717a",
+            measurementId: "G-W6EDZTWP3F"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let houseData = null;
+        let posts = [];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const houseId = urlParams.get('id');
+
+        if (!houseId) {
+            window.location.href = 'houses.html';
+        }
+
+        // Авторизация
+        async function loginWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                alert('❌ Ошибка входа: ' + error.message);
+            }
+        }
+
+        // Отслеживание авторизации
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            
+            if (user) {
+                document.getElementById('login-btn').style.display = 'none';
+                document.getElementById('user-info').style.display = 'flex';
+                document.getElementById('user-avatar').style.display = 'block';
+                document.getElementById('user-avatar').src = user.photoURL || '';
+                document.getElementById('user-name').textContent = user.displayName || user.email;
+            } else {
+                document.getElementById('login-btn').style.display = 'block';
+                document.getElementById('user-info').style.display = 'none';
+                document.getElementById('user-avatar').style.display = 'none';
+            }
+            
+            loadHouse();
+        });
+
+        // Загрузка домика
+        async function loadHouse() {
+            try {
+                const doc = await db.collection('houses').doc(houseId).get();
+
+                if (!doc.exists) {
+                    document.getElementById('houseHeader').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🏚️</div>
+                            <h2>Домик не найден</h2>
+                            <p>Возможно, он был удален</p>
+                            <a href="houses.html" class="btn btn-primary">← Вернуться к домикам</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                houseData = { id: doc.id, ...doc.data() };
+                renderHouseHeader();
+                loadPosts();
+
+            } catch (error) {
+                console.error('Ошибка загрузки домика:', error);
+                document.getElementById('houseHeader').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h2>Ошибка загрузки</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Отрисовка шапки домика
+        function renderHouseHeader() {
+            const author = houseData.userName || 'Аноним';
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=48&background=667eea&color=fff`;
+            const isOwner = currentUser && currentUser.uid === houseData.userId;
+
+            const html = `
+                <div class="house-header">
+                    ${houseData.coverImageUrl ? `
+                        <div class="house-cover-container">
+                            <img src="${escapeHtml(houseData.coverImageUrl)}" class="house-cover-image" alt="${escapeHtml(houseData.name)}">
+                        </div>
+                    ` : ''}
+                    <div class="house-info">
+                        <h1 class="house-title">
+                            🏠 ${escapeHtml(houseData.name)}
+                        </h1>
+                        ${houseData.description ? `
+                            <p class="house-description">${escapeHtml(houseData.description)}</p>
+                        ` : ''}
+                        <div class="house-meta-row">
+                            <div class="house-author-info">
+                                <img src="${avatarUrl}" class="house-author-avatar" alt="${escapeHtml(author)}">
+                                <div class="house-author-details">
+                                    <span class="house-author-name">${escapeHtml(author)}</span>
+                                    <span class="house-author-label">Владелец домика</span>
+                                </div>
+                            </div>
+                            <div class="house-stats">
+                                <div class="house-stat">
+                                    📝 ${houseData.postsCount || 0} постов
+                                </div>
+                                <div class="house-stat">
+                                    👥 ${houseData.subscribersCount || 0} подписчиков
+                                </div>
+                                <div class="house-stat">
+                                    🌱 ${(houseData.profileIds || []).length} профилей
+                                </div>
+                            </div>
+                            <div class="house-actions">
+                                ${!isOwner ? `
+                                    <button class="btn btn-primary" onclick="toggleSubscription()">
+                                        ⭐ Подписаться
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('houseHeader').innerHTML = html;
+        }
+
+        // Загрузка постов
+        async function loadPosts() {
+            try {
+                const snapshot = await db.collection('house_posts')
+                    .where('houseId', '==', houseId)
+                    .orderBy('created', 'asc')  // Хронология: старые вверху
+                    .get();
+
+                posts = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                document.getElementById('postsSection').style.display = 'block';
+                
+                // Показываем кнопку создания поста для владельца
+                if (currentUser && currentUser.uid === houseData.userId) {
+                    document.getElementById('create-post-btn').style.display = 'block';
+                }
+
+                renderPosts();
+
+            } catch (error) {
+                console.error('Ошибка загрузки постов:', error);
+                document.getElementById('postsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h3>Ошибка загрузки постов</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Отрисовка постов
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <h3>Пока нет постов</h3>
+                        <p>Начните вести журнал выращивания!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            posts.forEach(post => {
+                html += renderPost(post);
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Отрисовка одного поста
+        function renderPost(post) {
+            const author = post.userName || 'Аноним';
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=36&background=667eea&color=fff`;
+            const date = post.created?.toDate().toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) || '';
+
+            // Рендер markdown
+            const contentHtml = marked.parse(post.text || '');
+
+            let photosHtml = '';
+            if (post.photoUrls && post.photoUrls.length > 0) {
+                photosHtml = `
+                    <div class="post-photos">
+                        ${post.photoUrls.map(url => `
+                            <img src="${escapeHtml(url)}" class="post-photo" alt="Фото" onclick="window.open('${escapeHtml(url)}', '_blank')">
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let profilesHtml = '';
+            if (post.profileIds && post.profileIds.length > 0) {
+                profilesHtml = `
+                    <div class="post-profiles">
+                        <div class="post-profiles-title">🌱 Упомянутые профили:</div>
+                        <div class="post-profiles-list">
+                            ${post.profileIds.map(profileId => `
+                                <a href="../hpg.html?profile=${profileId}" class="post-profile-link" target="_blank">
+                                    🧪 Открыть профиль
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="post-item">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="${avatarUrl}" class="post-author-avatar" alt="${escapeHtml(author)}">
+                            <div>
+                                <div class="post-author-name">${escapeHtml(author)}</div>
+                                <div class="post-date">${date}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        ${contentHtml}
+                    </div>
+                    ${photosHtml}
+                    ${profilesHtml}
+                </div>
+            `;
+        }
+
+        // Создание поста
+        function showCreatePostForm() {
+            if (!currentUser) {
+                alert('Войдите, чтобы создавать посты');
+                return;
+            }
+            
+            if (currentUser.uid !== houseData.userId) {
+                alert('Только владелец может создавать посты');
+                return;
+            }
+
+            alert('Форма создания поста - в разработке...');
+        }
+
+        // Подписка
+        function toggleSubscription() {
+            if (!currentUser) {
+                alert('Войдите, чтобы подписаться');
+                return;
+            }
+            alert('Функция подписки - в разработке...');
+        }
+
+        // Вспомогательные функции
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
