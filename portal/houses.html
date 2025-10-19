@@ -375,6 +375,75 @@
         </div>
     </div>
 
+    <!-- Модальное окно создания домика -->
+    <div id="createHouseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closeCreateHouseModal()">
+        <div style="background: white; border-radius: 12px; max-width: 600px; width: 90%; margin: 40px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4);" onclick="event.stopPropagation()">
+            <div style="padding: 25px 30px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 24px; color: #333; display: flex; align-items: center; gap: 10px;">
+                    🏠 Создать домик
+                </h2>
+                <button onclick="closeCreateHouseModal()" style="border: none; background: transparent; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+            </div>
+            
+            <div style="padding: 30px;">
+                <form id="createHouseForm" onsubmit="createHouse(event)">
+                    <!-- Название -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Название домика *
+                        </label>
+                        <input type="text" id="houseName" required maxlength="100" 
+                               placeholder="Например: Мой первый гров томатов"
+                               style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; transition: all 0.3s;">
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                            Краткое название вашего проекта
+                        </div>
+                    </div>
+
+                    <!-- Описание -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Описание
+                        </label>
+                        <textarea id="houseDescription" rows="4" maxlength="500"
+                                  placeholder="Расскажите о вашем проекте выращивания..."
+                                  style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; resize: vertical; font-family: inherit;"></textarea>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                            Краткое описание (до 500 символов)
+                        </div>
+                    </div>
+
+                    <!-- Обложка -->
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Обложка домика
+                        </label>
+                        <div id="coverImageSelector" style="min-height: 60px;">
+                            <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;">
+                                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                                    📸 Загрузка доступных фото...
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                            Выберите фото из галереи ваших профилей
+                        </div>
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                        <button type="button" onclick="closeCreateHouseModal()" class="btn btn-secondary">
+                            Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            ✅ Создать домик
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -543,12 +612,174 @@
         }
 
         // Показать форму создания домика
-        function showCreateHouseForm() {
+        async function showCreateHouseForm() {
             if (!currentUser) {
                 alert('Войдите, чтобы создать домик');
                 return;
             }
-            alert('Форма создания домика - в разработке...');
+            
+            // Показываем модалку
+            document.getElementById('createHouseModal').style.display = 'flex';
+            
+            // Загружаем фото пользователя из его профилей
+            await loadUserPhotosForCover();
+        }
+
+        // Закрыть форму
+        function closeCreateHouseModal() {
+            document.getElementById('createHouseModal').style.display = 'none';
+            document.getElementById('createHouseForm').reset();
+        }
+
+        // Загрузка фото из галереи профилей пользователя
+        let selectedCoverUrl = '';
+        async function loadUserPhotosForCover() {
+            const container = document.getElementById('coverImageSelector');
+            
+            try {
+                // Загружаем профили пользователя
+                const snapshot = await db.collection('profiles')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                const allPhotos = [];
+                
+                snapshot.forEach(doc => {
+                    const profile = doc.data();
+                    if (profile.gallery && Array.isArray(profile.gallery)) {
+                        profile.gallery.forEach(photo => {
+                            if (photo.url) {
+                                allPhotos.push({
+                                    url: photo.url,
+                                    description: photo.description || '',
+                                    profileName: profile.name
+                                });
+                            }
+                        });
+                    }
+                });
+
+                if (allPhotos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;">
+                            <div style="font-size: 14px; color: #666;">
+                                📸 У вас пока нет фото в галереях профилей
+                            </div>
+                            <div style="font-size: 12px; color: #999; margin-top: 8px;">
+                                Добавьте фото в профили, чтобы использовать их как обложку
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Показываем первые 12 фото сеткой
+                const photosToShow = allPhotos.slice(0, 12);
+                let html = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;">
+                        ${photosToShow.map(photo => `
+                            <div onclick="selectCoverImage('${escapeHtml(photo.url)}')" 
+                                 data-url="${escapeHtml(photo.url)}"
+                                 class="cover-option"
+                                 style="cursor: pointer; border: 3px solid transparent; border-radius: 8px; overflow: hidden; transition: all 0.3s; aspect-ratio: 1;">
+                                <img src="${escapeHtml(photo.url)}" 
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     title="${escapeHtml(photo.description || photo.profileName)}">
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${allPhotos.length > 12 ? `
+                        <div style="text-align: center; font-size: 12px; color: #999; margin-top: 8px;">
+                            Показано ${photosToShow.length} из ${allPhotos.length} фото
+                        </div>
+                    ` : ''}
+                `;
+                
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Ошибка загрузки фото:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; background: #fff3cd; border-radius: 8px;">
+                        <div style="font-size: 14px; color: #856404;">
+                            ⚠️ Ошибка загрузки фото
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Выбор обложки
+        function selectCoverImage(url) {
+            selectedCoverUrl = url;
+            
+            // Снимаем выделение со всех
+            document.querySelectorAll('.cover-option').forEach(el => {
+                el.style.borderColor = 'transparent';
+            });
+            
+            // Выделяем выбранное
+            const selected = document.querySelector(`.cover-option[data-url="${url}"]`);
+            if (selected) {
+                selected.style.borderColor = '#4a9d9d';
+            }
+        }
+
+        // Создание домика
+        async function createHouse(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('houseName').value.trim();
+            const description = document.getElementById('houseDescription').value.trim();
+            
+            if (!name) {
+                alert('Введите название домика');
+                return;
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Создание...';
+
+            try {
+                // Создаем домик в Firebase
+                const houseData = {
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || currentUser.email,
+                    userPhotoURL: currentUser.photoURL || '',
+                    name: name,
+                    description: description,
+                    coverImageUrl: selectedCoverUrl || '',
+                    profileIds: [],
+                    subscribersCount: 0,
+                    postsCount: 0,
+                    viewsCount: 0,
+                    created: firebase.firestore.FieldValue.serverTimestamp(),
+                    modified: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                const docRef = await db.collection('houses').add(houseData);
+                
+                console.log('Домик создан:', docRef.id);
+                
+                // Закрываем форму
+                closeCreateHouseModal();
+                
+                // Перезагружаем домики
+                await loadHouses();
+                
+                // Показываем успех
+                alert('✅ Домик успешно создан!');
+                
+                // Переходим в домик
+                window.location.href = `house.html?id=${docRef.id}`;
+
+            } catch (error) {
+                console.error('Ошибка создания домика:', error);
+                alert('❌ Ошибка создания домика: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Создать домик';
+            }
         }
 
         // Вспомогательные функции
