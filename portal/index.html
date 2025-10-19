@@ -5478,11 +5478,45 @@
         }
 
         // Показать модальное окно профиля пользователя
-        function showUserProfileModal() {
+        async function showUserProfileModal() {
             if (!currentUser) return;
 
             // Подсчитываем профили пользователя
             const userProfilesCount = allProfiles.filter(p => p.userId === currentUser.uid).length;
+            
+            // Подсчитываем комментарии и реакции НА профили пользователя
+            let userCommentsCount = 0;
+            let userLikesCount = 0;
+            let userDislikesCount = 0;
+            
+            try {
+                // Получаем ID профилей пользователя
+                const userProfileIds = allProfiles
+                    .filter(p => p.userId === currentUser.uid)
+                    .map(p => p.id);
+                
+                if (userProfileIds.length > 0) {
+                    // Загружаем комментарии и реакции к профилям пачками
+                    for (let i = 0; i < userProfileIds.length; i += 10) {
+                        const batch = userProfileIds.slice(i, i + 10);
+                        
+                        const [commentsSnapshot, likesSnapshot] = await Promise.all([
+                            db.collection('comments').where('profileId', 'in', batch).get(),
+                            db.collection('likes').where('profileId', 'in', batch).get()
+                        ]);
+                        
+                        userCommentsCount += commentsSnapshot.size;
+                        
+                        likesSnapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (data.type === 'like') userLikesCount++;
+                            else if (data.type === 'dislike') userDislikesCount++;
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+            }
 
             const modal = document.createElement('div');
             modal.className = 'modal';
@@ -5503,17 +5537,50 @@
                         <h3 style="margin: 0 0 8px 0; font-size: 24px; color: #333; font-weight: 600;">
                             ${escapeHtml(currentUser.displayName || 'Пользователь')}
                         </h3>
-                        <p style="margin: 0 0 25px 0; font-size: 15px; color: #666;">
+                        <p style="margin: 0 0 20px 0; font-size: 15px; color: #666;">
                             ${escapeHtml(currentUser.email || '')}
                         </p>
                         
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px;">
-                            <div style="background: linear-gradient(135deg, #4a9d9d 0%, #3d8a8a 100%); padding: 20px; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(74, 157, 157, 0.3);">
-                                <div style="font-size: 36px; font-weight: 700; margin-bottom: 5px;">
+                        <!-- Большая кнопка с профилями - интерактивная -->
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px;">
+                            <div onclick="userFilter = 'my'; applyFilters(); this.closest('.modal').remove();" 
+                                 style="background: linear-gradient(135deg, #4a9d9d 0%, #3d8a8a 100%); padding: 15px; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(74, 157, 157, 0.3); cursor: pointer; transition: transform 0.2s;"
+                                 onmousedown="this.style.transform='scale(0.97)'" 
+                                 onmouseup="this.style.transform='scale(1)'"
+                                 onmouseleave="this.style.transform='scale(1)'">
+                                <div style="font-size: 32px; font-weight: 700; margin-bottom: 4px;">
                                     ${userProfilesCount}
                                 </div>
                                 <div style="font-size: 14px; opacity: 0.9;">
                                     📚 ${userProfilesCount === 1 ? 'Профиль' : userProfilesCount < 5 ? 'Профиля' : 'Профилей'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Счетчики комментариев и лайков -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                            <div onclick="showUserCommentsModal(); this.closest('.modal').remove();" 
+                                 style="background: #f8f9fa; padding: 14px; border-radius: 10px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s;"
+                                 onmousedown="this.style.transform='scale(0.97)'; this.style.background='#e8e9ea';" 
+                                 onmouseup="this.style.transform='scale(1)'; this.style.background='#f8f9fa';"
+                                 onmouseleave="this.style.transform='scale(1)'; this.style.background='#f8f9fa';">
+                                <div style="font-size: 24px; font-weight: 600; color: #4a9d9d; margin-bottom: 4px;">
+                                    ${userCommentsCount}
+                                </div>
+                                <div style="font-size: 12px; color: #666;">
+                                    💬 Комментариев
+                                </div>
+                            </div>
+                            <div onclick="showUserReactionsModal(); this.closest('.modal').remove();" 
+                                 style="background: #f8f9fa; padding: 14px; border-radius: 10px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s;"
+                                 onmousedown="this.style.transform='scale(0.97)'; this.style.background='#e8e9ea';" 
+                                 onmouseup="this.style.transform='scale(1)'; this.style.background='#f8f9fa';"
+                                 onmouseleave="this.style.transform='scale(1)'; this.style.background='#f8f9fa';">
+                                <div style="font-size: 24px; font-weight: 600; color: #4a9d9d; margin-bottom: 4px;">
+                                    ${userLikesCount}/${userDislikesCount}
+                                </div>
+                                <div style="font-size: 12px; color: #666;">
+                                    👍/👎 Реакции
                                 </div>
                             </div>
                         </div>
@@ -5536,6 +5603,347 @@
             `;
 
             document.body.appendChild(modal);
+        }
+
+        // Показать модальное окно с комментариями пользователя
+        async function showUserCommentsModal() {
+            if (!currentUser) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>💬 Комментарии к моим профилям</h2>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">✕</button>
+                    </div>
+                    <div class="modal-body" id="userCommentsBody">
+                        <div style="text-align: center; padding: 40px 20px; color: #999;">
+                            <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+                            <div>Загрузка комментариев...</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Загружаем комментарии к профилям пользователя
+            try {
+                // Получаем ID профилей пользователя
+                const userProfileIds = allProfiles
+                    .filter(p => p.userId === currentUser.uid)
+                    .map(p => p.id);
+                
+                if (userProfileIds.length === 0) {
+                    document.getElementById('userCommentsBody').innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: #999;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">У вас пока нет профилей</div>
+                            <div style="font-size: 14px;">Создайте первый профиль!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Загружаем комментарии к этим профилям (пачками по 10)
+                const allComments = [];
+                for (let i = 0; i < userProfileIds.length; i += 10) {
+                    const batch = userProfileIds.slice(i, i + 10);
+                    const commentsSnapshot = await db.collection('comments')
+                        .where('profileId', 'in', batch)
+                        .get();
+                    
+                    commentsSnapshot.forEach(doc => {
+                        allComments.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                }
+
+                const commentsBody = document.getElementById('userCommentsBody');
+                
+                if (allComments.length === 0) {
+                    commentsBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: #999;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">💬</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Комментариев пока нет</div>
+                            <div style="font-size: 14px;">Кто-то обязательно оставит комментарий!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Сортируем по дате (новые первые)
+                allComments.sort((a, b) => {
+                    const dateA = a.created?.toDate?.() || new Date(0);
+                    const dateB = b.created?.toDate?.() || new Date(0);
+                    return dateB - dateA;
+                });
+
+                let commentsHTML = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+                
+                for (const comment of allComments.slice(0, 50)) {
+                    const commentDate = comment.created?.toDate?.() || new Date();
+                    const timeAgo = getTimeAgo(commentDate);
+                    
+                    // Получаем данные профиля
+                    let profileTitle = 'Профиль';
+                    let profileCollageHtml = '';
+                    const profile = allProfiles.find(p => p.id === comment.profileId);
+                    if (profile) {
+                        profileTitle = escapeHtml(profile.name || 'Без названия');
+                        
+                        // Создаём коллаж из галереи (берём первые 3 фото)
+                        const gallery = profile.gallery || [];
+                        if (gallery.length > 0) {
+                            const photosToShow = gallery.slice(0, 3);
+                            const collageStyles = [
+                                'position: absolute; left: 0; width: 40px; height: 50px; object-fit: cover; border-radius: 4px; z-index: 3;',
+                                'position: absolute; left: 20px; width: 40px; height: 50px; object-fit: cover; border-radius: 4px; z-index: 2;',
+                                'position: absolute; left: 40px; width: 40px; height: 50px; object-fit: cover; border-radius: 4px; z-index: 1;'
+                            ];
+                            profileCollageHtml = photosToShow.map((photo, idx) => 
+                                `<img src="${escapeHtml(photo.url)}" style="${collageStyles[idx]}" alt="Фото">`
+                            ).join('');
+                        }
+                    }
+                    
+                    // Аватар автора комментария
+                    const authorAvatar = comment.userPhotoURL || 
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.userName || 'Аноним')}&size=40&background=4a9d9d&color=fff`;
+                    const authorName = escapeHtml(comment.userName || 'Аноним');
+
+                    commentsHTML += `
+                        <div style="background: #fff; padding: 12px; border-radius: 10px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <!-- Автор комментария -->
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <img src="${authorAvatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #4a9d9d;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 13px; font-weight: 600; color: #333;">${authorName}</div>
+                                    <div style="font-size: 11px; color: #999;">${timeAgo}</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Текст комментария -->
+                            <div style="font-size: 14px; color: #333; line-height: 1.5; margin-bottom: 10px;">
+                                ${escapeHtml(comment.text)}
+                            </div>
+                            
+                            <!-- Карточка профиля -->
+                            <div onclick="showProfileDetail('${comment.profileId}'); document.querySelector('.modal').remove();" 
+                                 style="display: flex; gap: 10px; background: #f8f9fa; padding: 8px; border-radius: 8px; cursor: pointer; border-left: 3px solid #4a9d9d; transition: background 0.2s;"
+                                 onmouseover="this.style.background='#e8f4f4'" 
+                                 onmouseout="this.style.background='#f8f9fa'">
+                                ${profileCollageHtml ? `
+                                    <div style="position: relative; width: 80px; height: 50px; flex-shrink: 0;">
+                                        ${profileCollageHtml}
+                                    </div>
+                                ` : `
+                                    <div style="width: 80px; height: 50px; border-radius: 6px; background: linear-gradient(135deg, #4a9d9d, #357a7a); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; flex-shrink: 0;">
+                                        📚
+                                    </div>
+                                `}
+                                <div style="flex: 1; min-width: 0; padding-left: 5px;">
+                                    <div style="font-size: 13px; font-weight: 600; color: #4a9d9d; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        ${profileTitle}
+                                    </div>
+                                    <div style="font-size: 11px; color: #666;">
+                                        👁️ Посмотреть профиль
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                commentsHTML += '</div>';
+                commentsBody.innerHTML = commentsHTML;
+
+            } catch (error) {
+                console.error('Ошибка загрузки комментариев:', error);
+                document.getElementById('userCommentsBody').innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #e74c3c;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                        <div style="font-size: 14px;">Ошибка загрузки комментариев</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Показать модальное окно с реакциями пользователя
+        async function showUserReactionsModal() {
+            if (!currentUser) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>👍👎 Реакции на мои профили</h2>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">✕</button>
+                    </div>
+                    <div class="modal-body" id="userReactionsBody">
+                        <div style="text-align: center; padding: 40px 20px; color: #999;">
+                            <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+                            <div>Загрузка реакций...</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Загружаем реакции к профилям пользователя
+            try {
+                // Получаем ID профилей пользователя
+                const userProfileIds = allProfiles
+                    .filter(p => p.userId === currentUser.uid)
+                    .map(p => p.id);
+                
+                if (userProfileIds.length === 0) {
+                    document.getElementById('userReactionsBody').innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: #999;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">У вас пока нет профилей</div>
+                            <div style="font-size: 14px;">Создайте первый профиль!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Загружаем реакции к этим профилям (пачками по 10)
+                const allReactions = [];
+                for (let i = 0; i < userProfileIds.length; i += 10) {
+                    const batch = userProfileIds.slice(i, i + 10);
+                    const likesSnapshot = await db.collection('likes')
+                        .where('profileId', 'in', batch)
+                        .get();
+                    
+                    likesSnapshot.forEach(doc => {
+                        allReactions.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                }
+
+                const reactionsBody = document.getElementById('userReactionsBody');
+                
+                if (allReactions.length === 0) {
+                    reactionsBody.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: #999;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">👍👎</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Реакций пока нет</div>
+                            <div style="font-size: 14px;">Кто-то обязательно оценит ваши профили!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Сортируем по дате (новые первые)
+                allReactions.sort((a, b) => {
+                    const dateA = a.created?.toDate?.() || new Date(0);
+                    const dateB = b.created?.toDate?.() || new Date(0);
+                    return dateB - dateA;
+                });
+
+                let reactionsHTML = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+                
+                for (const reaction of allReactions.slice(0, 50)) {
+                    const reactionDate = reaction.created?.toDate?.() || new Date();
+                    const timeAgo = getTimeAgo(reactionDate);
+                    const isLike = reaction.type === 'like';
+                    
+                    // Получаем данные профиля
+                    let profileTitle = 'Профиль';
+                    let profileCollageHtml = '';
+                    const profile = allProfiles.find(p => p.id === reaction.profileId);
+                    if (profile) {
+                        profileTitle = escapeHtml(profile.name || 'Без названия');
+                        
+                        // Создаём коллаж из галереи (берём первые 3 фото)
+                        const gallery = profile.gallery || [];
+                        if (gallery.length > 0) {
+                            const photosToShow = gallery.slice(0, 3);
+                            const collageStyles = [
+                                'position: absolute; left: 0; width: 40px; height: 50px; object-fit: cover; border-radius: 4px; z-index: 3;',
+                                'position: absolute; left: 20px; width: 40px; height: 50px; object-fit: cover; border-radius: 4px; z-index: 2;',
+                                'position: absolute; left: 40px; width: 40px; height: 50px; object-fit: cover; border-radius: 4px; z-index: 1;'
+                            ];
+                            profileCollageHtml = photosToShow.map((photo, idx) => 
+                                `<img src="${escapeHtml(photo.url)}" style="${collageStyles[idx]}" alt="Фото">`
+                            ).join('');
+                        }
+                    }
+
+                    // Информация о пользователе, который поставил реакцию
+                    const reactionUserName = escapeHtml(reaction.userName || 'Аноним');
+                    const reactionUserAvatar = reaction.userPhotoURL || 
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(reaction.userName || 'Аноним')}&size=32&background=4a9d9d&color=fff`;
+
+                    reactionsHTML += `
+                        <div style="background: #fff; padding: 12px; border-radius: 10px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <!-- Автор реакции -->
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <img src="${reactionUserAvatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid ${isLike ? '#4a9d9d' : '#e74c3c'};">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 13px; font-weight: 600; color: #333;">${reactionUserName}</div>
+                                    <div style="font-size: 11px; color: #999;">${timeAgo}</div>
+                                </div>
+                                <div style="font-size: 32px; line-height: 1;">${isLike ? '👍' : '👎'}</div>
+                            </div>
+                            
+                            <!-- Карточка профиля -->
+                            <div onclick="showProfileDetail('${reaction.profileId}'); document.querySelector('.modal').remove();" 
+                                 style="display: flex; gap: 10px; background: ${isLike ? '#f0f9f9' : '#fff5f5'}; padding: 8px; border-radius: 8px; cursor: pointer; border-left: 3px solid ${isLike ? '#4a9d9d' : '#e74c3c'}; transition: background 0.2s;"
+                                 onmouseover="this.style.background='${isLike ? '#e0f2f2' : '#ffe5e5'}'" 
+                                 onmouseout="this.style.background='${isLike ? '#f0f9f9' : '#fff5f5'}'">
+                                ${profileCollageHtml ? `
+                                    <div style="position: relative; width: 80px; height: 50px; flex-shrink: 0;">
+                                        ${profileCollageHtml}
+                                    </div>
+                                ` : `
+                                    <div style="width: 80px; height: 50px; border-radius: 6px; background: linear-gradient(135deg, #4a9d9d, #357a7a); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; flex-shrink: 0;">
+                                        📚
+                                    </div>
+                                `}
+                                <div style="flex: 1; min-width: 0; padding-left: 5px;">
+                                    <div style="font-size: 13px; font-weight: 600; color: ${isLike ? '#4a9d9d' : '#e74c3c'}; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        ${profileTitle}
+                                    </div>
+                                    <div style="font-size: 11px; color: #666;">
+                                        👁️ Посмотреть профиль
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                reactionsHTML += '</div>';
+                reactionsBody.innerHTML = reactionsHTML;
+
+            } catch (error) {
+                console.error('Ошибка загрузки реакций:', error);
+                document.getElementById('userReactionsBody').innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #e74c3c;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                        <div style="font-size: 14px;">Ошибка загрузки реакций</div>
+                    </div>
+                `;
+            }
         }
     </script>
 
