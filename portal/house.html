@@ -672,6 +672,21 @@
         </div>
     </div>
 
+    <!-- Универсальное модальное окно для сообщений -->
+    <div id="customModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; max-width: 500px; width: 90%; margin: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);" onclick="event.stopPropagation()">
+            <div id="customModalHeader" style="padding: 20px 25px; border-bottom: 2px solid #e0e0e0;">
+                <h3 id="customModalTitle" style="margin: 0; font-size: 18px; color: #333;"></h3>
+            </div>
+            <div id="customModalBody" style="padding: 25px;">
+                <p id="customModalMessage" style="margin: 0 0 15px 0; color: #555; line-height: 1.6;"></p>
+                <input type="text" id="customModalInput" style="display: none; width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; margin-top: 10px;">
+            </div>
+            <div id="customModalFooter" style="padding: 15px 25px; border-top: 1px solid #e0e0e0; display: flex; gap: 10px; justify-content: flex-end;">
+            </div>
+        </div>
+    </div>
+
     <!-- Модальное окно редактирования поста -->
     <div id="editPostModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closeEditPostModal()">
         <div style="background: white; border-radius: 12px; max-width: 900px; width: 90%; max-height: 90vh; margin: 20px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: flex; flex-direction: column;" onclick="event.stopPropagation()">
@@ -774,7 +789,7 @@
                 await auth.signInWithPopup(provider);
             } catch (error) {
                 console.error('Ошибка входа:', error);
-                alert('❌ Ошибка входа: ' + error.message);
+                await showAlert('❌ Ошибка входа: ' + error.message, 'Ошибка');
             }
         }
 
@@ -1073,12 +1088,12 @@
         
         async function showCreatePostForm() {
             if (!currentUser) {
-                alert('Войдите, чтобы создавать посты');
+                await showAlert('Войдите, чтобы создавать посты', 'Требуется авторизация');
                 return;
             }
             
             if (currentUser.uid !== houseData.userId) {
-                alert('Только владелец может создавать посты');
+                await showAlert('Только владелец может создавать посты', 'Доступ запрещен');
                 return;
             }
 
@@ -1363,7 +1378,7 @@
             const text = document.getElementById('postText').value.trim();
             
             if (!text) {
-                alert('Введите текст поста');
+                await showAlert('Введите текст поста', 'Ошибка');
                 return;
             }
 
@@ -1411,11 +1426,11 @@
                 houseData = { id: updatedDoc.id, ...updatedDoc.data() };
                 renderHouseHeader();
                 
-                alert('✅ Пост успешно опубликован!');
+                await showAlert('✅ Пост успешно опубликован!', 'Успех');
 
             } catch (error) {
                 console.error('Ошибка создания поста:', error);
-                alert('❌ Ошибка создания поста: ' + error.message);
+                await showAlert('❌ Ошибка создания поста: ' + error.message, 'Ошибка');
                 submitBtn.disabled = false;
                 submitBtn.textContent = '📤 Опубликовать пост';
             }
@@ -1521,7 +1536,7 @@
             
             const text = document.getElementById('editPostText').value.trim();
             if (!text) {
-                alert('Введите текст поста');
+                await showAlert('Введите текст поста', 'Ошибка');
                 return;
             }
 
@@ -1548,11 +1563,11 @@
                 console.log('Пост обновлен успешно');
                 closeEditPostModal();
                 await loadPosts();
-                alert('✅ Пост обновлен!');
+                await showAlert('✅ Пост обновлен!', 'Успех');
 
             } catch (error) {
                 console.error('Ошибка обновления поста:', error);
-                alert('❌ Ошибка: ' + error.message);
+                await showAlert('❌ Ошибка: ' + error.message, 'Ошибка');
             } finally {
                 // ВСЕГДА разблокируем кнопку
                 submitBtn.disabled = false;
@@ -1562,7 +1577,8 @@
 
         // Удаление поста
         async function deletePost() {
-            if (!confirm('Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.')) {
+            const confirmed = await showConfirm('Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.', 'Удалить пост?');
+            if (!confirmed) {
                 return;
             }
 
@@ -1582,11 +1598,11 @@
                 houseData = { id: updatedDoc.id, ...updatedDoc.data() };
                 renderHouseHeader();
                 
-                alert('✅ Пост удален');
+                await showAlert('✅ Пост удален', 'Успех');
 
             } catch (error) {
                 console.error('Ошибка удаления поста:', error);
-                alert('❌ Ошибка удаления: ' + error.message);
+                await showAlert('❌ Ошибка удаления: ' + error.message, 'Ошибка');
             }
         }
 
@@ -1597,7 +1613,7 @@
             }
             
             const currentTitle = houseData.journalTitle || 'Журнал событий';
-            const newTitle = prompt('Введите название журнала:', currentTitle);
+            const newTitle = await showPrompt('Введите название журнала:', currentTitle, 'Изменить название');
             
             if (newTitle !== null && newTitle.trim() !== '' && newTitle.trim() !== currentTitle) {
                 try {
@@ -1611,7 +1627,7 @@
                     
                 } catch (error) {
                     console.error('Ошибка обновления заголовка:', error);
-                    alert('❌ Ошибка обновления: ' + error.message);
+                    await showAlert('❌ Ошибка обновления: ' + error.message, 'Ошибка');
                 }
             }
         }
@@ -1748,7 +1764,7 @@
             const journalTitle = document.getElementById('editJournalTitle').value.trim();
             
             if (!name) {
-                alert('Введите название домика');
+                await showAlert('Введите название домика', 'Ошибка');
                 return;
             }
 
@@ -1776,29 +1792,119 @@
                 document.getElementById('journalTitle').innerHTML = `📝 ${escapeHtml(houseData.journalTitle)}`;
                 
                 closeEditHouseModal();
-                alert('✅ Изменения сохранены!');
+                await showAlert('✅ Изменения сохранены!', 'Успех');
 
             } catch (error) {
                 console.error('Ошибка обновления домика:', error);
-                alert('❌ Ошибка сохранения: ' + error.message);
+                await showAlert('❌ Ошибка сохранения: ' + error.message, 'Ошибка');
                 submitBtn.disabled = false;
                 submitBtn.textContent = '💾 Сохранить';
             }
         }
 
         // Подписка
-        function toggleSubscription() {
+        async function toggleSubscription() {
             if (!currentUser) {
-                alert('Войдите, чтобы подписаться');
+                await showAlert('Войдите, чтобы подписаться', 'Требуется авторизация');
                 return;
             }
-            alert('Функция подписки - в разработке...');
+            await showAlert('Функция подписки - в разработке...', 'В разработке');
         }
 
         // Открыть профиль в портале
         function openProfileInPortal(profileId) {
             // Открываем портал в новой вкладке с хешем для автоматического открытия профиля
             window.open(`index.html#profile-${profileId}`, '_blank');
+        }
+
+        // Кастомные модальные окна (замена alert, confirm, prompt)
+        function showAlert(message, title = 'Уведомление') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customModal');
+                const titleEl = document.getElementById('customModalTitle');
+                const messageEl = document.getElementById('customModalMessage');
+                const inputEl = document.getElementById('customModalInput');
+                const footer = document.getElementById('customModalFooter');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                inputEl.style.display = 'none';
+                
+                footer.innerHTML = `
+                    <button onclick="closeCustomModal()" class="btn btn-primary">OK</button>
+                `;
+                
+                modal.style.display = 'flex';
+                
+                window.closeCustomModal = () => {
+                    modal.style.display = 'none';
+                    resolve();
+                };
+            });
+        }
+
+        function showConfirm(message, title = 'Подтверждение') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customModal');
+                const titleEl = document.getElementById('customModalTitle');
+                const messageEl = document.getElementById('customModalMessage');
+                const inputEl = document.getElementById('customModalInput');
+                const footer = document.getElementById('customModalFooter');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                inputEl.style.display = 'none';
+                
+                footer.innerHTML = `
+                    <button onclick="closeCustomModal(false)" class="btn btn-secondary">Отмена</button>
+                    <button onclick="closeCustomModal(true)" class="btn btn-primary">Подтвердить</button>
+                `;
+                
+                modal.style.display = 'flex';
+                
+                window.closeCustomModal = (result) => {
+                    modal.style.display = 'none';
+                    resolve(result);
+                };
+            });
+        }
+
+        function showPrompt(message, defaultValue = '', title = 'Ввод') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customModal');
+                const titleEl = document.getElementById('customModalTitle');
+                const messageEl = document.getElementById('customModalMessage');
+                const inputEl = document.getElementById('customModalInput');
+                const footer = document.getElementById('customModalFooter');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                inputEl.style.display = 'block';
+                inputEl.value = defaultValue;
+                
+                footer.innerHTML = `
+                    <button onclick="closeCustomModal(null)" class="btn btn-secondary">Отмена</button>
+                    <button onclick="closeCustomModal(document.getElementById('customModalInput').value)" class="btn btn-primary">OK</button>
+                `;
+                
+                modal.style.display = 'flex';
+                setTimeout(() => inputEl.focus(), 100);
+                
+                // Enter для подтверждения
+                inputEl.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        closeCustomModal(inputEl.value);
+                    } else if (e.key === 'Escape') {
+                        closeCustomModal(null);
+                    }
+                };
+                
+                window.closeCustomModal = (result) => {
+                    modal.style.display = 'none';
+                    inputEl.onkeydown = null;
+                    resolve(result);
+                };
+            });
         }
 
         // Вспомогательные функции
