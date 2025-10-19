@@ -1610,6 +1610,10 @@
                         style="display: none;">
                         📸 Галерея
                     </button>
+                    <button id="houses-btn" class="btn btn-secondary" onclick="window.location.href='houses.html'"
+                        style="display: none;">
+                        🏠 К домикам
+                    </button>
                     <button id="upload-btn" class="btn btn-primary" onclick="showUploadForm()" style="display: none;">
                         📤 Загрузить профиль
                     </button>
@@ -1787,6 +1791,7 @@
                 console.log('Пользователь авторизован:', user.email);
                 document.getElementById('login-btn').style.display = 'none';
                 document.getElementById('gallery-btn').style.display = 'inline-block';
+                document.getElementById('houses-btn').style.display = 'inline-block';
                 document.getElementById('upload-btn').style.display = 'block';
                 document.getElementById('user-info').style.display = 'flex';
                 document.getElementById('user-avatar').style.display = 'block';
@@ -1810,6 +1815,7 @@
                 console.log('Пользователь не авторизован');
                 document.getElementById('login-btn').style.display = 'block';
                 document.getElementById('gallery-btn').style.display = 'none';
+                document.getElementById('houses-btn').style.display = 'none';
                 document.getElementById('upload-btn').style.display = 'none';
                 document.getElementById('user-info').style.display = 'none';
                 document.getElementById('user-avatar').style.display = 'none';

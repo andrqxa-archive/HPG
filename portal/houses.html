@@ -513,6 +513,33 @@
                     ...doc.data()
                 }));
 
+                // Загружаем фото пользователей
+                const userIds = [...new Set(allHouses.map(h => h.userId).filter(id => id))];
+                
+                if (userIds.length > 0 && currentUser) {
+                    try {
+                        // Загружаем данные пользователей пачками (Firestore поддерживает до 10 в in)
+                        for (let i = 0; i < userIds.length; i += 10) {
+                            const batch = userIds.slice(i, i + 10);
+                            const usersSnapshot = await db.collection('users')
+                                .where(firebase.firestore.FieldPath.documentId(), 'in', batch)
+                                .get();
+
+                            usersSnapshot.forEach(doc => {
+                                const userData = doc.data();
+                                // Применяем фото к домикам этого пользователя
+                                allHouses.forEach(house => {
+                                    if (house.userId === doc.id && userData.photoURL) {
+                                        house.userPhotoURL = userData.photoURL;
+                                    }
+                                });
+                            });
+                        }
+                    } catch (error) {
+                        console.log('Не удалось загрузить фото пользователей:', error);
+                    }
+                }
+
                 filteredHouses = [...allHouses];
                 renderHouses();
 
@@ -568,7 +595,7 @@
 
             const date = house.created?.toDate().toLocaleDateString('ru-RU') || '';
             const author = house.userName || 'Аноним';
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=32&background=667eea&color=fff`;
+            const avatarUrl = house.userPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=32&background=667eea&color=fff`;
 
             card.innerHTML = `
                 ${house.coverImageUrl ? `
