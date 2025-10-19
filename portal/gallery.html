@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Галерея фотографий - HPG Community</title>
+    <title>Галерея профилей и домиков - HPG Community</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📸</text></svg>">
     
     <style>
@@ -447,19 +447,23 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const profileId = urlParams.get('profile');
+        const houseId = urlParams.get('house');
 
         // Авторизация
         auth.onAuthStateChanged(user => {
             currentUser = user;
             
             if (profileId) {
-                // Если указан profileId, загружаем галерею (доступно всем)
+                // Если указан profileId, загружаем галерею профиля (доступно всем)
                 loadGallery();
+            } else if (houseId) {
+                // Если указан houseId, загружаем галерею домика
+                loadHouseGallery();
             } else if (!currentUser) {
-                // Если нет profileId и не авторизован - требуем авторизацию
+                // Если нет profileId/houseId и не авторизован - требуем авторизацию
                 showAuthRequired();
             } else {
-                // Если авторизован и нет profileId - показываем список своих профилей
+                // Если авторизован и нет profileId/houseId - показываем список своих профилей и домиков
                 loadUserProfiles();
             }
         });
@@ -478,21 +482,26 @@
         }
 
         async function loadUserProfiles() {
-            document.getElementById('profileName').textContent = 'Мои профили';
-            document.getElementById('profileMeta').textContent = 'Выберите профиль для управления галереей';
+            document.getElementById('profileName').textContent = 'Мои профили и домики';
+            document.getElementById('profileMeta').textContent = 'Выберите профиль или домик для управления';
 
             try {
                 // Загружаем профили без сортировки (чтобы не требовать составной индекс)
-                const snapshot = await db.collection('profiles')
+                const profilesSnapshot = await db.collection('profiles')
                     .where('userId', '==', currentUser.uid)
                     .get();
 
-                if (snapshot.empty) {
+                // Загружаем домики пользователя
+                const housesSnapshot = await db.collection('houses')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                if (profilesSnapshot.empty && housesSnapshot.empty) {
                     document.getElementById('galleryGrid').innerHTML = `
                         <div class="empty-state">
                             <div style="font-size: 64px; margin-bottom: 20px;">📝</div>
-                            <h3>У вас пока нет профилей</h3>
-                            <p>Создайте профиль в каталоге, чтобы добавлять к нему фотографии</p>
+                            <h3>У вас пока нет профилей и домиков</h3>
+                            <p>Создайте профиль в каталоге или домик, чтобы добавлять к ним фотографии</p>
                             <button class="btn btn-primary" style="margin-top: 20px;" onclick="window.location.href='index.html'">
                                 Перейти в каталог
                             </button>
@@ -501,11 +510,21 @@
                     return;
                 }
 
-                // Собираем профили и сортируем на клиенте
+                // Собираем профили
                 const profiles = [];
-                snapshot.forEach(doc => {
+                profilesSnapshot.forEach(doc => {
                     profiles.push({
                         id: doc.id,
+                        type: 'profile',
+                        ...doc.data()
+                    });
+                });
+
+                // Собираем домики
+                housesSnapshot.forEach(doc => {
+                    profiles.push({
+                        id: doc.id,
+                        type: 'house',
                         ...doc.data()
                     });
                 });
@@ -520,23 +539,26 @@
                 let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">';
                 
                 profiles.forEach(profile => {
+                    const isHouse = profile.type === 'house';
+                    const icon = isHouse ? '🏠' : '🌱';
+                    const link = isHouse ? `gallery.html?house=${profile.id}` : `gallery.html?profile=${profile.id}`;
                     const galleryCount = (profile.gallery && profile.gallery.length) || 0;
                     const date = profile.modified?.toDate().toLocaleDateString('ru-RU') || '';
                     
                     html += `
-                        <div onclick="window.location.href='gallery.html?profile=${profile.id}'" 
+                        <div onclick="window.location.href='${link}'" 
                              style="background: white; border-radius: 12px; padding: 20px; cursor: pointer; 
                                     transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                                     border: 2px solid transparent;">
                             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                                <div style="font-size: 32px;">🌱</div>
+                                <div style="font-size: 32px;">${icon}</div>
                                 <div style="flex: 1; min-width: 0;">
                                     <div style="font-weight: 600; font-size: 16px; color: #333; 
                                                 overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         ${escapeHtml(profile.name)}
                                     </div>
                                     <div style="font-size: 12px; color: #999; margin-top: 4px;">
-                                        Изменено: ${date}
+                                        ${isHouse ? 'Домик • ' : ''}Изменено: ${date}
                                     </div>
                                 </div>
                             </div>
@@ -550,18 +572,29 @@
                             ` : ''}
                             <div style="display: flex; gap: 15px; padding-top: 12px; 
                                         border-top: 1px solid #f0f0f0; font-size: 13px; color: #666;">
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>📸</span>
-                                    <strong>${galleryCount}</strong> фото
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>👁️</span>
-                                    ${profile.views || 0}
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>💬</span>
-                                    ${profile.commentsCount || 0}
-                                </div>
+                                ${isHouse ? `
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>📝</span>
+                                        <strong>${profile.postsCount || 0}</strong> постов
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>👁️</span>
+                                        ${profile.views || 0}
+                                    </div>
+                                ` : `
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>📸</span>
+                                        <strong>${galleryCount}</strong> фото
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>👁️</span>
+                                        ${profile.views || 0}
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>💬</span>
+                                        ${profile.commentsCount || 0}
+                                    </div>
+                                `}
                             </div>
                         </div>
                     `;
@@ -650,6 +683,72 @@
             } catch (error) {
                 console.error('Ошибка:', error);
                 showError('Ошибка загрузки галереи');
+            }
+        }
+
+        async function loadHouseGallery() {
+            try {
+                const doc = await db.collection('houses').doc(houseId).get();
+                
+                if (!doc.exists) {
+                    showError('Домик не найден');
+                    return;
+                }
+
+                profileData = doc.data();
+                
+                // Проверяем является ли пользователь владельцем
+                const isOwner = currentUser && currentUser.uid === profileData.userId;
+                
+                document.getElementById('profileName').textContent = '🏠 ' + profileData.name;
+                document.getElementById('profileMeta').textContent = `Владелец: ${profileData.userName || 'Аноним'}`;
+
+                // Показываем кнопки управления только владельцу
+                if (isOwner) {
+                    document.getElementById('showAddFormBtn').style.display = 'inline-flex';
+                    document.getElementById('backToListBtn').style.display = 'inline-flex';
+                    // Убираем информационное сообщение если оно было
+                    const viewModeInfo = document.getElementById('viewModeInfo');
+                    if (viewModeInfo) viewModeInfo.remove();
+                } else {
+                    document.getElementById('showAddFormBtn').style.display = 'none';
+                    document.getElementById('backToListBtn').style.display = 'none';
+                    // Скрываем форму добавления если она была открыта
+                    document.getElementById('addPhotoForm').classList.remove('active');
+                    
+                    // Добавляем информационное сообщение о режиме просмотра
+                    const existingInfo = document.getElementById('viewModeInfo');
+                    if (!existingInfo) {
+                        const infoDiv = document.createElement('div');
+                        infoDiv.id = 'viewModeInfo';
+                        infoDiv.style.cssText = 'background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3; display: flex; align-items: center; gap: 12px;';
+                        infoDiv.innerHTML = `
+                            <span style="font-size: 24px;">👁️</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1976d2; margin-bottom: 4px;">Режим просмотра</div>
+                                <div style="font-size: 14px; color: #555;">Вы просматриваете галерею другого пользователя. ${currentUser ? 'Редактирование недоступно.' : 'Войдите для управления своими галереями.'}</div>
+                            </div>
+                        `;
+                        const container = document.querySelector('.gallery-container');
+                        container.insertBefore(infoDiv, container.firstChild);
+                    }
+                }
+
+                photos = profileData.gallery || [];
+                renderGallery();
+                
+                // Проверяем, есть ли параметр photo в URL для автоматического открытия
+                const photoUrl = urlParams.get('photo');
+                if (photoUrl && photos.length > 0) {
+                    setTimeout(() => {
+                        const decodedPhotoUrl = decodeURIComponent(photoUrl);
+                        openLightbox(decodedPhotoUrl);
+                    }, 300);
+                }
+
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showError('Ошибка загрузки галереи домика');
             }
         }
 
@@ -811,7 +910,11 @@
 
                 photos.push(...newPhotos);
 
-                await db.collection('profiles').doc(profileId).update({
+                // Определяем коллекцию и ID
+                const collection = houseId ? 'houses' : 'profiles';
+                const docId = houseId || profileId;
+
+                await db.collection(collection).doc(docId).update({
                     gallery: photos,
                     modified: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -933,7 +1036,11 @@
             try {
                 photos.splice(index, 1);
 
-                await db.collection('profiles').doc(profileId).update({
+                // Определяем коллекцию и ID
+                const collection = houseId ? 'houses' : 'profiles';
+                const docId = houseId || profileId;
+
+                await db.collection(collection).doc(docId).update({
                     gallery: photos,
                     modified: firebase.firestore.FieldValue.serverTimestamp()
                 });
