@@ -1497,8 +1497,12 @@
                 min-width: 36px;
                 height: 36px;
                 padding: 0 10px !important;
-                font-size: 11px !important;
+                font-size: 18px !important;
                 border-radius: 18px !important;
+            }
+            
+            #login-btn .login-text {
+                display: none !important;
             }
 
             #user-info {
@@ -1619,12 +1623,12 @@
             </div>
             <div id="auth-section">
                 <!-- Кнопка входа (показывается когда не авторизован) -->
-                <button id="login-btn" class="btn btn-primary" onclick="loginWithGoogle()" style="display: none;">
-                    🔐 Войти через Google
+                <button id="login-btn" class="btn btn-primary" onclick="loginWithGoogle()" style="display: none;" title="Войти через Google">
+                    🔐 <span class="login-text">Войти через Google</span>
                 </button>
                 <!-- Информация о пользователе (показывается когда авторизован) -->
                 <div id="user-info" style="display: none; align-items: center; gap: 10px;">
-                    <img id="user-avatar" style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer;" alt=""
+                    <img id="user-avatar" style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none;" alt=""
                         onclick="showUserProfileModal()">
                     <span id="user-name" style="font-size: 13px; font-weight: 500;"></span>
                 </div>
@@ -1785,6 +1789,7 @@
                 document.getElementById('gallery-btn').style.display = 'inline-block';
                 document.getElementById('upload-btn').style.display = 'block';
                 document.getElementById('user-info').style.display = 'flex';
+                document.getElementById('user-avatar').style.display = 'block';
                 document.getElementById('user-avatar').src = user.photoURL || '';
                 document.getElementById('user-name').textContent = user.displayName || user.email;
 
@@ -1807,6 +1812,7 @@
                 document.getElementById('gallery-btn').style.display = 'none';
                 document.getElementById('upload-btn').style.display = 'none';
                 document.getElementById('user-info').style.display = 'none';
+                document.getElementById('user-avatar').style.display = 'none';
 
                 // Скрываем переключатели и сбрасываем фильтры
                 document.getElementById('userFilterContainer').style.display = 'none';
