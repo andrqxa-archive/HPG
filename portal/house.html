@@ -480,13 +480,257 @@
         <!-- Посты -->
         <div id="postsSection" style="display: none;" class="posts-section">
             <div class="posts-header">
-                <h2 class="posts-title">📝 Журнал событий</h2>
+                <h2 class="posts-title" id="journalTitle">📝 Журнал событий</h2>
                 <button id="create-post-btn" class="btn btn-primary" onclick="showCreatePostForm()" style="display: none;">
                     ➕ Новый пост
                 </button>
             </div>
             <div id="postsContainer">
                 <div class="loading">Загрузка постов...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно создания поста -->
+    <div id="createPostModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closeCreatePostModal()">
+        <div style="background: white; border-radius: 12px; max-width: 900px; width: 90%; max-height: 90vh; margin: 20px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+            <div style="padding: 20px 25px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 22px; color: #333; display: flex; align-items: center; gap: 10px;">
+                    📝 Новый пост
+                </h2>
+                <button onclick="closeCreatePostModal()" style="border: none; background: transparent; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+            </div>
+            
+            <div style="padding: 25px; overflow-y: auto; flex: 1;">
+                <form id="createPostForm" onsubmit="createPost(event)">
+                    <!-- Текст поста (Markdown) -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Текст поста (Markdown) *
+                        </label>
+                        <textarea id="postText" required rows="18"
+                                  placeholder="Опишите что происходит с вашими растениями...&#10;&#10;Можно использовать Markdown:&#10;**жирный текст**  *курсив*  # Заголовок  - список"
+                                  style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; resize: vertical; font-family: 'Courier New', monospace;"></textarea>
+                        <div style="font-size: 11px; color: #999; margin-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>💡 <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" style="color: #4a9d9d;">Markdown синтаксис</a></span>
+                            <button type="button" onclick="togglePreview()" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">
+                                👁️ Превью
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Превью -->
+                    <div id="postPreview" style="display: none; margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4a9d9d; max-height: 300px; overflow-y: auto;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 8px; font-size: 12px;">
+                            👁️ Превью:
+                        </div>
+                        <div id="postPreviewContent" class="post-content" style="font-size: 13px;"></div>
+                    </div>
+
+                    <!-- Вложения -->
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" onclick="openPhotoSelector()" class="btn btn-secondary" style="font-size: 13px;">
+                            📸 Прикрепить фото (<span id="photoCount">0</span>)
+                        </button>
+                        <button type="button" onclick="openProfileSelector()" class="btn btn-secondary" style="font-size: 13px;">
+                            🌱 Прикрепить профили (<span id="profileCount">0</span>)
+                        </button>
+                    </div>
+
+                    <!-- Выбранные элементы -->
+                    <div id="selectedItemsPreview" style="margin-bottom: 15px; font-size: 12px; color: #666;">
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <button type="button" onclick="closeCreatePostModal()" class="btn btn-secondary">
+                            Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            📤 Опубликовать пост
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно выбора фото -->
+    <div id="photoSelectorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1100; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closePhotoSelector()">
+        <div style="background: white; border-radius: 12px; max-width: 900px; width: 90%; max-height: 80vh; margin: 40px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+            <div style="padding: 20px 25px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 18px; color: #333;">📸 Выбрать фото</h3>
+                <button onclick="closePhotoSelector()" style="border: none; background: transparent; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+            </div>
+            <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                <div id="postPhotoSelector"></div>
+            </div>
+            <div style="padding: 15px 25px; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <div id="selectedPhotosInfo" style="font-size: 13px; color: #666;">Выбрано: 0 фото</div>
+                <button onclick="closePhotoSelector()" class="btn btn-primary">Готово</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно выбора профилей -->
+    <div id="profileSelectorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1100; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closeProfileSelector()">
+        <div style="background: white; border-radius: 12px; max-width: 700px; width: 90%; max-height: 80vh; margin: 40px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+            <div style="padding: 20px 25px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 18px; color: #333;">🌱 Выбрать профили</h3>
+                <button onclick="closeProfileSelector()" style="border: none; background: transparent; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+            </div>
+            <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                <div id="postProfileSelector"></div>
+            </div>
+            <div style="padding: 15px 25px; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <div id="selectedProfilesInfo" style="font-size: 13px; color: #666;">Выбрано: 0 профилей</div>
+                <button onclick="closeProfileSelector()" class="btn btn-primary">Готово</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования домика -->
+    <div id="editHouseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closeEditHouseModal()">
+        <div style="background: white; border-radius: 12px; max-width: 600px; width: 90%; margin: 40px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4);" onclick="event.stopPropagation()">
+            <div style="padding: 25px 30px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 24px; color: #333; display: flex; align-items: center; gap: 10px;">
+                    ✏️ Редактировать домик
+                </h2>
+                <button onclick="closeEditHouseModal()" style="border: none; background: transparent; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+            </div>
+            
+            <div style="padding: 30px;">
+                <form id="editHouseForm" onsubmit="updateHouse(event)">
+                    <!-- Название -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Название домика *
+                        </label>
+                        <input type="text" id="editHouseName" required maxlength="100" 
+                               style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                    </div>
+
+                    <!-- Описание -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Описание
+                        </label>
+                        <textarea id="editHouseDescription" rows="4" maxlength="500"
+                                  style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+
+                    <!-- Обложка -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Обложка домика
+                        </label>
+                        <button type="button" onclick="openCoverSelector()" class="btn btn-secondary" style="width: 100%;">
+                            📸 Выбрать обложку
+                        </button>
+                        <div id="currentCoverPreview" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <!-- Название журнала -->
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Название журнала
+                        </label>
+                        <input type="text" id="editJournalTitle" maxlength="100" placeholder="Журнал событий"
+                               style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                            Заголовок секции с постами
+                        </div>
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                        <button type="button" onclick="closeEditHouseModal()" class="btn btn-secondary">
+                            Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            💾 Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно выбора обложки для редактирования -->
+    <div id="coverSelectorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1100; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closeCoverSelector()">
+        <div style="background: white; border-radius: 12px; max-width: 900px; width: 90%; max-height: 80vh; margin: 40px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+            <div style="padding: 20px 25px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 18px; color: #333;">📸 Выбрать обложку</h3>
+                <button onclick="closeCoverSelector()" style="border: none; background: transparent; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+            </div>
+            <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                <div id="editCoverSelector"></div>
+            </div>
+            <div style="padding: 15px 25px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end;">
+                <button onclick="closeCoverSelector()" class="btn btn-primary">Готово</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования поста -->
+    <div id="editPostModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto;" onclick="if(event.target === this) closeEditPostModal()">
+        <div style="background: white; border-radius: 12px; max-width: 900px; width: 90%; max-height: 90vh; margin: 20px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+            <div style="padding: 20px 25px; border-bottom: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 22px; color: #333; display: flex; align-items: center; gap: 10px;">
+                    ✏️ Редактировать пост
+                </h2>
+                <button onclick="closeEditPostModal()" style="border: none; background: transparent; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+            </div>
+            
+            <div style="padding: 25px; overflow-y: auto; flex: 1;">
+                <form id="editPostForm" onsubmit="updatePost(event)">
+                    <input type="hidden" id="editPostId">
+                    
+                    <!-- Текст поста -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">
+                            Текст поста (Markdown) *
+                        </label>
+                        <textarea id="editPostText" required rows="18"
+                                  style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; resize: vertical; font-family: 'Courier New', monospace;"></textarea>
+                        <div style="font-size: 11px; color: #999; margin-top: 5px; display: flex; justify-content: flex-end;">
+                            <button type="button" onclick="toggleEditPreview()" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">
+                                👁️ Превью
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Превью -->
+                    <div id="editPostPreview" style="display: none; margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4a9d9d; max-height: 300px; overflow-y: auto;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 8px; font-size: 12px;">👁️ Превью:</div>
+                        <div id="editPostPreviewContent" class="post-content" style="font-size: 13px;"></div>
+                    </div>
+
+                    <!-- Вложения -->
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" onclick="openEditPhotoSelector()" class="btn btn-secondary" style="font-size: 13px;">
+                            📸 Изменить фото (<span id="editPhotoCount">0</span>)
+                        </button>
+                        <button type="button" onclick="openEditProfileSelector()" class="btn btn-secondary" style="font-size: 13px;">
+                            🌱 Изменить профили (<span id="editProfileCount">0</span>)
+                        </button>
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div style="display: flex; gap: 10px; justify-content: space-between; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <button type="button" onclick="deletePost()" class="btn" style="background: #dc3545; color: white;">
+                            🗑️ Удалить пост
+                        </button>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" onclick="closeEditPostModal()" class="btn btn-secondary">
+                                Отмена
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Сохранить
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -626,11 +870,18 @@
                                 </div>
                             </div>
                             <div class="house-actions">
-                                ${!isOwner ? `
+                                ${isOwner ? `
+                                    <button class="btn btn-secondary" onclick="showEditHouseForm()">
+                                        ⚙️ Настройки
+                                    </button>
+                                    <button class="btn btn-primary" onclick="showCreatePostForm()">
+                                        ➕ Новый пост
+                                    </button>
+                                ` : `
                                     <button class="btn btn-primary" onclick="toggleSubscription()">
                                         ⭐ Подписаться
                                     </button>
-                                ` : ''}
+                                `}
                             </div>
                         </div>
                     </div>
@@ -645,7 +896,6 @@
             try {
                 const snapshot = await db.collection('house_posts')
                     .where('houseId', '==', houseId)
-                    .orderBy('created', 'asc')  // Хронология: старые вверху
                     .get();
 
                 posts = snapshot.docs.map(doc => ({
@@ -653,11 +903,31 @@
                     ...doc.data()
                 }));
 
+                // Сортируем на клиенте (старые вверху, новые внизу)
+                posts.sort((a, b) => {
+                    const timeA = a.created?.toMillis() || 0;
+                    const timeB = b.created?.toMillis() || 0;
+                    return timeA - timeB;  // Ascending - старые первыми
+                });
+
                 document.getElementById('postsSection').style.display = 'block';
                 
+                // Обновляем заголовок журнала
+                const journalTitle = houseData.journalTitle || 'Журнал событий';
+                document.getElementById('journalTitle').innerHTML = `📝 ${escapeHtml(journalTitle)}`;
+                
                 // Показываем кнопку создания поста для владельца
+                const titleEl = document.getElementById('journalTitle');
                 if (currentUser && currentUser.uid === houseData.userId) {
                     document.getElementById('create-post-btn').style.display = 'block';
+                    // Делаем заголовок кликабельным для редактирования
+                    titleEl.style.cursor = 'pointer';
+                    titleEl.title = 'Нажмите для редактирования';
+                    titleEl.onclick = editJournalTitle;
+                } else {
+                    titleEl.style.cursor = 'default';
+                    titleEl.title = '';
+                    titleEl.onclick = null;
                 }
 
                 renderPosts();
@@ -675,7 +945,7 @@
         }
 
         // Отрисовка постов
-        function renderPosts() {
+        async function renderPosts() {
             const container = document.getElementById('postsContainer');
 
             if (posts.length === 0) {
@@ -690,15 +960,42 @@
             }
 
             let html = '';
-            posts.forEach(post => {
-                html += renderPost(post);
-            });
+            for (const post of posts) {
+                html += await renderPost(post);
+            }
 
             container.innerHTML = html;
         }
 
+        // Загрузка информации о профилях
+        async function loadProfilesInfo(profileIds) {
+            if (!profileIds || profileIds.length === 0) return [];
+            
+            try {
+                const profiles = [];
+                // Загружаем по батчам (Firebase ограничение - 10 элементов в 'in')
+                for (let i = 0; i < profileIds.length; i += 10) {
+                    const batch = profileIds.slice(i, i + 10);
+                    const snapshot = await db.collection('profiles')
+                        .where(firebase.firestore.FieldPath.documentId(), 'in', batch)
+                        .get();
+                    
+                    snapshot.forEach(doc => {
+                        profiles.push({
+                            id: doc.id,
+                            name: doc.data().name || 'Без названия'
+                        });
+                    });
+                }
+                return profiles;
+            } catch (error) {
+                console.error('Ошибка загрузки профилей:', error);
+                return profileIds.map(id => ({ id, name: 'Профиль' }));
+            }
+        }
+
         // Отрисовка одного поста
-        function renderPost(post) {
+        async function renderPost(post) {
             const author = post.userName || 'Аноним';
             const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=36&background=667eea&color=fff`;
             const date = post.created?.toDate().toLocaleDateString('ru-RU', {
@@ -725,19 +1022,25 @@
 
             let profilesHtml = '';
             if (post.profileIds && post.profileIds.length > 0) {
+                // Загружаем информацию о профилях
+                const profilesInfo = await loadProfilesInfo(post.profileIds);
+                
                 profilesHtml = `
                     <div class="post-profiles">
                         <div class="post-profiles-title">🌱 Упомянутые профили:</div>
                         <div class="post-profiles-list">
-                            ${post.profileIds.map(profileId => `
-                                <a href="../hpg.html?profile=${profileId}" class="post-profile-link" target="_blank">
-                                    🧪 Открыть профиль
+                            ${profilesInfo.map(profile => `
+                                <a href="javascript:void(0)" onclick="openProfileInPortal('${profile.id}')" class="post-profile-link">
+                                    🌱 ${escapeHtml(profile.name)}
                                 </a>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }
+
+            // Проверяем права на редактирование
+            const canEdit = currentUser && currentUser.uid === post.userId;
 
             return `
                 <div class="post-item">
@@ -749,6 +1052,11 @@
                                 <div class="post-date">${date}</div>
                             </div>
                         </div>
+                        ${canEdit ? `
+                            <button onclick="editPost('${post.id}')" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">
+                                ✏️ Редактировать
+                            </button>
+                        ` : ''}
                     </div>
                     <div class="post-content">
                         ${contentHtml}
@@ -759,8 +1067,11 @@
             `;
         }
 
-        // Создание поста
-        function showCreatePostForm() {
+        // Показать форму создания поста
+        let selectedPhotos = [];
+        let selectedProfiles = [];
+        
+        async function showCreatePostForm() {
             if (!currentUser) {
                 alert('Войдите, чтобы создавать посты');
                 return;
@@ -771,7 +1082,700 @@
                 return;
             }
 
-            alert('Форма создания поста - в разработке...');
+            // Сбрасываем выборки
+            selectedPhotos = [];
+            selectedProfiles = [];
+            
+            // Показываем модалку
+            document.getElementById('createPostModal').style.display = 'flex';
+            
+            // Обновляем счетчики
+            updateAttachmentCounts();
+        }
+
+        // Закрыть форму поста
+        function closeCreatePostModal() {
+            document.getElementById('createPostModal').style.display = 'none';
+            document.getElementById('createPostForm').reset();
+            document.getElementById('postPreview').style.display = 'none';
+            selectedPhotos = [];
+            selectedProfiles = [];
+        }
+
+        // Открыть селектор фото
+        async function openPhotoSelector() {
+            document.getElementById('photoSelectorModal').style.display = 'flex';
+            await loadUserPhotosForPost();
+        }
+
+        // Закрыть селектор фото
+        function closePhotoSelector() {
+            document.getElementById('photoSelectorModal').style.display = 'none';
+            // Если редактируем пост, сохраняем выбор ОБОИХ массивов
+            if (editingPostId) {
+                editSelectedPhotos = [...selectedPhotos];
+                editSelectedProfiles = [...selectedProfiles]; // ВАЖНО!
+                document.getElementById('editPhotoCount').textContent = editSelectedPhotos.length;
+                document.getElementById('editProfileCount').textContent = editSelectedProfiles.length;
+            }
+            updateAttachmentCounts();
+        }
+
+        // Открыть селектор профилей
+        async function openProfileSelector() {
+            document.getElementById('profileSelectorModal').style.display = 'flex';
+            await loadUserProfilesForPost();
+        }
+
+        // Закрыть селектор профилей
+        function closeProfileSelector() {
+            document.getElementById('profileSelectorModal').style.display = 'none';
+            // Если редактируем пост, сохраняем выбор ОБОИХ массивов
+            if (editingPostId) {
+                editSelectedPhotos = [...selectedPhotos]; // ВАЖНО!
+                editSelectedProfiles = [...selectedProfiles];
+                document.getElementById('editPhotoCount').textContent = editSelectedPhotos.length;
+                document.getElementById('editProfileCount').textContent = editSelectedProfiles.length;
+            }
+            updateAttachmentCounts();
+        }
+
+        // Обновить счетчики вложений
+        function updateAttachmentCounts() {
+            document.getElementById('photoCount').textContent = selectedPhotos.length;
+            document.getElementById('profileCount').textContent = selectedProfiles.length;
+            
+            // Показываем превью выбранного
+            let preview = '';
+            if (selectedPhotos.length > 0) {
+                preview += `📸 Прикреплено ${selectedPhotos.length} фото<br>`;
+            }
+            if (selectedProfiles.length > 0) {
+                preview += `🌱 Прикреплено ${selectedProfiles.length} профилей`;
+            }
+            document.getElementById('selectedItemsPreview').innerHTML = preview;
+        }
+
+        // Загрузка фото для поста
+        async function loadUserPhotosForPost() {
+            const container = document.getElementById('postPhotoSelector');
+            
+            try {
+                const snapshot = await db.collection('profiles')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                const allPhotos = [];
+                
+                snapshot.forEach(doc => {
+                    const profile = doc.data();
+                    if (profile.gallery && Array.isArray(profile.gallery)) {
+                        profile.gallery.forEach(photo => {
+                            if (photo.url) {
+                                allPhotos.push({
+                                    url: photo.url,
+                                    description: photo.description || '',
+                                    date: photo.date || ''
+                                });
+                            }
+                        });
+                    }
+                });
+
+                if (allPhotos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;">
+                            <div style="font-size: 14px; color: #666;">
+                                📸 У вас пока нет фото в галереях профилей
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Сортируем по дате (новые первыми)
+                allPhotos.sort((a, b) => {
+                    const dateA = a.date ? new Date(a.date) : new Date(0);
+                    const dateB = b.date ? new Date(b.date) : new Date(0);
+                    return dateB - dateA;
+                });
+
+                const photosToShow = allPhotos.slice(0, 24);
+                let html = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+                        ${photosToShow.map((photo, idx) => `
+                            <div onclick="togglePhotoSelection('${escapeHtml(photo.url)}', ${idx})" 
+                                 id="photo-option-${idx}"
+                                 class="photo-option"
+                                 style="cursor: pointer; border: 3px solid transparent; border-radius: 8px; overflow: hidden; transition: all 0.3s; aspect-ratio: 1; position: relative;">
+                                <img src="${escapeHtml(photo.url)}" 
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     title="${escapeHtml(photo.description || photo.date)}">
+                                <div class="photo-check" style="display: none; position: absolute; top: 5px; right: 5px; background: #4a9d9d; color: white; border-radius: 50%; width: 24px; height: 24px; align-items: center; justify-content: center; font-size: 14px;">✓</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${allPhotos.length > 24 ? `
+                        <div style="text-align: center; font-size: 12px; color: #999; margin-top: 8px;">
+                            Показано ${photosToShow.length} из ${allPhotos.length} фото
+                        </div>
+                    ` : ''}
+                    <div id="selectedPhotosInfo" style="margin-top: 10px; font-size: 13px; color: #666; text-align: center;">
+                        Выбрано: 0 фото
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Ошибка загрузки фото:', error);
+                container.innerHTML = `<div style="text-align: center; color: #999;">Ошибка загрузки фото</div>`;
+            }
+        }
+
+        // Переключение выбора фото
+        function togglePhotoSelection(url, idx) {
+            const photoDiv = document.getElementById(`photo-option-${idx}`);
+            const checkmark = photoDiv.querySelector('.photo-check');
+            
+            const photoIndex = selectedPhotos.indexOf(url);
+            if (photoIndex > -1) {
+                // Снимаем выделение
+                selectedPhotos.splice(photoIndex, 1);
+                photoDiv.style.borderColor = 'transparent';
+                checkmark.style.display = 'none';
+            } else {
+                // Добавляем выделение
+                selectedPhotos.push(url);
+                photoDiv.style.borderColor = '#4a9d9d';
+                checkmark.style.display = 'flex';
+            }
+            
+            // Обновляем счетчик
+            document.getElementById('selectedPhotosInfo').textContent = `Выбрано: ${selectedPhotos.length} фото`;
+        }
+
+        // Загрузка профилей для поста
+        async function loadUserProfilesForPost() {
+            const container = document.getElementById('postProfileSelector');
+            
+            try {
+                const snapshot = await db.collection('profiles')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                const profiles = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    profiles.push({
+                        id: doc.id,
+                        name: data.name || 'Без названия',
+                        description: data.description || '',
+                        modified: data.modified?.toMillis() || 0
+                    });
+                });
+
+                // Сортируем на клиенте (новые первыми)
+                profiles.sort((a, b) => b.modified - a.modified);
+
+                if (profiles.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ddd;">
+                            <div style="font-size: 14px; color: #666;">
+                                🌱 У вас пока нет профилей
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        ${profiles.map(profile => `
+                            <div onclick="toggleProfileSelection('${profile.id}')" 
+                                 id="profile-option-${profile.id}"
+                                 style="cursor: pointer; padding: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; transition: all 0.3s; display: flex; align-items: center; gap: 10px;">
+                                <div class="profile-check" style="display: none; min-width: 24px; height: 24px; background: #4a9d9d; color: white; border-radius: 50%; align-items: center; justify-content: center; font-size: 14px;">✓</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #333; font-size: 14px;">🌱 ${escapeHtml(profile.name)}</div>
+                                    ${profile.description ? `<div style="font-size: 12px; color: #999; margin-top: 2px;">${escapeHtml(profile.description.substring(0, 80))}${profile.description.length > 80 ? '...' : ''}</div>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="selectedProfilesInfo" style="margin-top: 10px; font-size: 13px; color: #666; text-align: center;">
+                        Выбрано: 0 профилей
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Ошибка загрузки профилей:', error);
+                container.innerHTML = `<div style="text-align: center; color: #999;">Ошибка загрузки профилей</div>`;
+            }
+        }
+
+        // Переключение выбора профиля
+        function toggleProfileSelection(profileId) {
+            const profileDiv = document.getElementById(`profile-option-${profileId}`);
+            const checkmark = profileDiv.querySelector('.profile-check');
+            
+            const profileIndex = selectedProfiles.indexOf(profileId);
+            if (profileIndex > -1) {
+                // Снимаем выделение
+                selectedProfiles.splice(profileIndex, 1);
+                profileDiv.style.borderColor = '#e0e0e0';
+                profileDiv.style.background = 'white';
+                checkmark.style.display = 'none';
+            } else {
+                // Добавляем выделение
+                selectedProfiles.push(profileId);
+                profileDiv.style.borderColor = '#4a9d9d';
+                profileDiv.style.background = '#f0f8f8';
+                checkmark.style.display = 'flex';
+            }
+            
+            // Обновляем счетчик
+            document.getElementById('selectedProfilesInfo').textContent = `Выбрано: ${selectedProfiles.length} профилей`;
+        }
+
+        // Превью markdown
+        function togglePreview() {
+            const preview = document.getElementById('postPreview');
+            const text = document.getElementById('postText').value;
+            
+            if (preview.style.display === 'none') {
+                // Показываем превью
+                const contentDiv = document.getElementById('postPreviewContent');
+                contentDiv.innerHTML = marked.parse(text || '*Пусто*');
+                preview.style.display = 'block';
+            } else {
+                // Скрываем превью
+                preview.style.display = 'none';
+            }
+        }
+
+        // Создание поста
+        async function createPost(event) {
+            event.preventDefault();
+            
+            const text = document.getElementById('postText').value.trim();
+            
+            if (!text) {
+                alert('Введите текст поста');
+                return;
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Публикация...';
+
+            try {
+                // Создаем пост в Firebase
+                const postData = {
+                    houseId: houseId,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || currentUser.email,
+                    userPhotoURL: currentUser.photoURL || '',
+                    text: text,
+                    photoUrls: selectedPhotos,
+                    profileIds: selectedProfiles,
+                    likesCount: 0,
+                    commentsCount: 0,
+                    created: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                console.log('Создаем пост с данными:', postData);
+                console.log('Выбрано фото:', selectedPhotos.length);
+                console.log('Выбрано профилей:', selectedProfiles.length);
+
+                await db.collection('house_posts').add(postData);
+                
+                // Обновляем счетчик постов в домике
+                await db.collection('houses').doc(houseId).update({
+                    postsCount: firebase.firestore.FieldValue.increment(1),
+                    modified: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                console.log('Пост создан');
+                
+                // Закрываем форму
+                closeCreatePostModal();
+                
+                // Перезагружаем посты
+                await loadPosts();
+                
+                // Обновляем информацию о домике
+                const updatedDoc = await db.collection('houses').doc(houseId).get();
+                houseData = { id: updatedDoc.id, ...updatedDoc.data() };
+                renderHouseHeader();
+                
+                alert('✅ Пост успешно опубликован!');
+
+            } catch (error) {
+                console.error('Ошибка создания поста:', error);
+                alert('❌ Ошибка создания поста: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Опубликовать пост';
+            }
+        }
+
+        // Редактирование поста
+        let editingPostId = null;
+        let editSelectedPhotos = [];
+        let editSelectedProfiles = [];
+
+        function editPost(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            
+            editingPostId = postId;
+            editSelectedPhotos = post.photoUrls ? [...post.photoUrls] : [];
+            editSelectedProfiles = post.profileIds ? [...post.profileIds] : [];
+            
+            // Заполняем форму
+            document.getElementById('editPostId').value = postId;
+            document.getElementById('editPostText').value = post.text || '';
+            document.getElementById('editPhotoCount').textContent = editSelectedPhotos.length;
+            document.getElementById('editProfileCount').textContent = editSelectedProfiles.length;
+            
+            // Открываем модалку
+            document.getElementById('editPostModal').style.display = 'flex';
+        }
+
+        function closeEditPostModal() {
+            document.getElementById('editPostModal').style.display = 'none';
+            document.getElementById('editPostForm').reset();
+            document.getElementById('editPostPreview').style.display = 'none';
+            editingPostId = null;
+            editSelectedPhotos = [];
+            editSelectedProfiles = [];
+        }
+
+        function toggleEditPreview() {
+            const preview = document.getElementById('editPostPreview');
+            const text = document.getElementById('editPostText').value;
+            
+            if (preview.style.display === 'none') {
+                const contentDiv = document.getElementById('editPostPreviewContent');
+                contentDiv.innerHTML = marked.parse(text || '*Пусто*');
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        async function openEditPhotoSelector() {
+            // ВАЖНО: копируем ОБА массива - и фото и профили!
+            selectedPhotos = [...editSelectedPhotos];
+            selectedProfiles = [...editSelectedProfiles];
+            
+            document.getElementById('photoSelectorModal').style.display = 'flex';
+            await loadUserPhotosForPost();
+            // Восстанавливаем выбор после загрузки
+            updatePhotoSelectionUI();
+        }
+
+        async function openEditProfileSelector() {
+            // ВАЖНО: копируем ОБА массива - и фото и профили!
+            selectedPhotos = [...editSelectedPhotos];
+            selectedProfiles = [...editSelectedProfiles];
+            
+            document.getElementById('profileSelectorModal').style.display = 'flex';
+            await loadUserProfilesForPost();
+            // Восстанавливаем выбор после загрузки
+            updateProfileSelectionUI();
+        }
+
+        // Обновление UI выбора фото
+        function updatePhotoSelectionUI() {
+            selectedPhotos.forEach((url, idx) => {
+                const photoDiv = document.getElementById(`photo-option-${idx}`);
+                if (photoDiv && photoDiv.getAttribute('data-url') === url) {
+                    photoDiv.style.borderColor = '#4a9d9d';
+                    const checkmark = photoDiv.querySelector('.photo-check');
+                    if (checkmark) checkmark.style.display = 'flex';
+                }
+            });
+            document.getElementById('selectedPhotosInfo').textContent = `Выбрано: ${selectedPhotos.length} фото`;
+        }
+
+        // Обновление UI выбора профилей
+        function updateProfileSelectionUI() {
+            selectedProfiles.forEach(profileId => {
+                const profileDiv = document.getElementById(`profile-option-${profileId}`);
+                if (profileDiv) {
+                    profileDiv.style.borderColor = '#4a9d9d';
+                    profileDiv.style.background = '#f0f8f8';
+                    const checkmark = profileDiv.querySelector('.profile-check');
+                    if (checkmark) checkmark.style.display = 'flex';
+                }
+            });
+            document.getElementById('selectedProfilesInfo').textContent = `Выбрано: ${selectedProfiles.length} профилей`;
+        }
+
+        // Обновление поста
+        async function updatePost(event) {
+            event.preventDefault();
+            
+            const text = document.getElementById('editPostText').value.trim();
+            if (!text) {
+                alert('Введите текст поста');
+                return;
+            }
+
+            // Копируем выбранные элементы из основных селекторов
+            editSelectedPhotos = [...selectedPhotos];
+            editSelectedProfiles = [...selectedProfiles];
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Сохранение...';
+
+            try {
+                await db.collection('house_posts').doc(editingPostId).update({
+                    text: text,
+                    photoUrls: editSelectedPhotos,
+                    profileIds: editSelectedProfiles
+                });
+                
+                closeEditPostModal();
+                await loadPosts();
+                alert('✅ Пост обновлен!');
+
+            } catch (error) {
+                console.error('Ошибка обновления поста:', error);
+                alert('❌ Ошибка: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 Сохранить';
+            }
+        }
+
+        // Удаление поста
+        async function deletePost() {
+            if (!confirm('Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.')) {
+                return;
+            }
+
+            try {
+                await db.collection('house_posts').doc(editingPostId).delete();
+                
+                // Обновляем счетчик постов
+                await db.collection('houses').doc(houseId).update({
+                    postsCount: firebase.firestore.FieldValue.increment(-1)
+                });
+                
+                closeEditPostModal();
+                await loadPosts();
+                
+                // Обновляем шапку
+                const updatedDoc = await db.collection('houses').doc(houseId).get();
+                houseData = { id: updatedDoc.id, ...updatedDoc.data() };
+                renderHouseHeader();
+                
+                alert('✅ Пост удален');
+
+            } catch (error) {
+                console.error('Ошибка удаления поста:', error);
+                alert('❌ Ошибка удаления: ' + error.message);
+            }
+        }
+
+        // Редактирование заголовка журнала
+        async function editJournalTitle() {
+            if (!currentUser || currentUser.uid !== houseData.userId) {
+                return;
+            }
+            
+            const currentTitle = houseData.journalTitle || 'Журнал событий';
+            const newTitle = prompt('Введите название журнала:', currentTitle);
+            
+            if (newTitle !== null && newTitle.trim() !== '' && newTitle.trim() !== currentTitle) {
+                try {
+                    await db.collection('houses').doc(houseId).update({
+                        journalTitle: newTitle.trim(),
+                        modified: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    houseData.journalTitle = newTitle.trim();
+                    document.getElementById('journalTitle').innerHTML = `📝 ${escapeHtml(newTitle.trim())}`;
+                    
+                } catch (error) {
+                    console.error('Ошибка обновления заголовка:', error);
+                    alert('❌ Ошибка обновления: ' + error.message);
+                }
+            }
+        }
+
+        // Форма редактирования домика
+        let editSelectedCoverUrl = '';
+        
+        function showEditHouseForm() {
+            if (!currentUser || currentUser.uid !== houseData.userId) {
+                return;
+            }
+            
+            // Заполняем форму текущими данными
+            document.getElementById('editHouseName').value = houseData.name || '';
+            document.getElementById('editHouseDescription').value = houseData.description || '';
+            document.getElementById('editJournalTitle').value = houseData.journalTitle || '';
+            editSelectedCoverUrl = houseData.coverImageUrl || '';
+            
+            // Показываем превью текущей обложки
+            updateCoverPreview();
+            
+            // Открываем модалку
+            document.getElementById('editHouseModal').style.display = 'flex';
+        }
+
+        function closeEditHouseModal() {
+            document.getElementById('editHouseModal').style.display = 'none';
+            document.getElementById('editHouseForm').reset();
+        }
+
+        // Выбор обложки
+        async function openCoverSelector() {
+            document.getElementById('coverSelectorModal').style.display = 'flex';
+            await loadPhotosForCover();
+        }
+
+        function closeCoverSelector() {
+            document.getElementById('coverSelectorModal').style.display = 'none';
+            updateCoverPreview();
+        }
+
+        async function loadPhotosForCover() {
+            const container = document.getElementById('editCoverSelector');
+            
+            try {
+                const snapshot = await db.collection('profiles')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+
+                const allPhotos = [];
+                snapshot.forEach(doc => {
+                    const profile = doc.data();
+                    if (profile.gallery && Array.isArray(profile.gallery)) {
+                        profile.gallery.forEach(photo => {
+                            if (photo.url) {
+                                allPhotos.push({
+                                    url: photo.url,
+                                    description: photo.description || ''
+                                });
+                            }
+                        });
+                    }
+                });
+
+                if (allPhotos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            📸 У вас пока нет фото в галереях профилей
+                        </div>
+                    `;
+                    return;
+                }
+
+                const photosToShow = allPhotos.slice(0, 12);
+                let html = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+                        ${photosToShow.map((photo, idx) => `
+                            <div onclick="selectEditCover('${escapeHtml(photo.url)}')" 
+                                 data-url="${escapeHtml(photo.url)}"
+                                 class="edit-cover-option"
+                                 style="cursor: pointer; border: 3px solid ${photo.url === editSelectedCoverUrl ? '#4a9d9d' : 'transparent'}; border-radius: 8px; overflow: hidden; transition: all 0.3s; aspect-ratio: 1;">
+                                <img src="${escapeHtml(photo.url)}" 
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     title="${escapeHtml(photo.description)}">
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Ошибка загрузки фото:', error);
+                container.innerHTML = `<div style="text-align: center; color: #999;">Ошибка загрузки</div>`;
+            }
+        }
+
+        function selectEditCover(url) {
+            editSelectedCoverUrl = url;
+            
+            // Обновляем выделение
+            document.querySelectorAll('.edit-cover-option').forEach(el => {
+                const elUrl = el.getAttribute('data-url');
+                el.style.borderColor = elUrl === url ? '#4a9d9d' : 'transparent';
+            });
+        }
+
+        function updateCoverPreview() {
+            const preview = document.getElementById('currentCoverPreview');
+            if (editSelectedCoverUrl) {
+                preview.innerHTML = `
+                    <div style="position: relative; border-radius: 8px; overflow: hidden; max-width: 200px;">
+                        <img src="${escapeHtml(editSelectedCoverUrl)}" style="width: 100%; height: 120px; object-fit: cover;">
+                        <button type="button" onclick="removeEditCover()" 
+                                style="position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; line-height: 1;">×</button>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = '<div style="font-size: 12px; color: #999;">Обложка не выбрана</div>';
+            }
+        }
+
+        function removeEditCover() {
+            editSelectedCoverUrl = '';
+            updateCoverPreview();
+        }
+
+        // Сохранение изменений
+        async function updateHouse(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('editHouseName').value.trim();
+            const description = document.getElementById('editHouseDescription').value.trim();
+            const journalTitle = document.getElementById('editJournalTitle').value.trim();
+            
+            if (!name) {
+                alert('Введите название домика');
+                return;
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Сохранение...';
+
+            try {
+                await db.collection('houses').doc(houseId).update({
+                    name: name,
+                    description: description,
+                    coverImageUrl: editSelectedCoverUrl,
+                    journalTitle: journalTitle || 'Журнал событий',
+                    modified: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Обновляем локальные данные
+                houseData.name = name;
+                houseData.description = description;
+                houseData.coverImageUrl = editSelectedCoverUrl;
+                houseData.journalTitle = journalTitle || 'Журнал событий';
+                
+                // Перерисовываем шапку и заголовок
+                renderHouseHeader();
+                document.getElementById('journalTitle').innerHTML = `📝 ${escapeHtml(houseData.journalTitle)}`;
+                
+                closeEditHouseModal();
+                alert('✅ Изменения сохранены!');
+
+            } catch (error) {
+                console.error('Ошибка обновления домика:', error);
+                alert('❌ Ошибка сохранения: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 Сохранить';
+            }
         }
 
         // Подписка
@@ -781,6 +1785,12 @@
                 return;
             }
             alert('Функция подписки - в разработке...');
+        }
+
+        // Открыть профиль в портале
+        function openProfileInPortal(profileId) {
+            // Открываем портал в новой вкладке с хешем для автоматического открытия профиля
+            window.open(`index.html#profile-${profileId}`, '_blank');
         }
 
         // Вспомогательные функции
