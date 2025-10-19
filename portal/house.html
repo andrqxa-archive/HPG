@@ -833,7 +833,7 @@
         // Отрисовка шапки домика
         function renderHouseHeader() {
             const author = houseData.userName || 'Аноним';
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=48&background=667eea&color=fff`;
+            const avatarUrl = houseData.userPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=48&background=667eea&color=fff`;
             const isOwner = currentUser && currentUser.uid === houseData.userId;
 
             const html = `
@@ -997,7 +997,7 @@
         // Отрисовка одного поста
         async function renderPost(post) {
             const author = post.userName || 'Аноним';
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=36&background=667eea&color=fff`;
+            const avatarUrl = post.userPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=36&background=667eea&color=fff`;
             const date = post.created?.toDate().toLocaleDateString('ru-RU', {
                 year: 'numeric',
                 month: 'long',
@@ -1530,16 +1530,22 @@
             editSelectedProfiles = [...selectedProfiles];
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
             submitBtn.textContent = 'Сохранение...';
 
             try {
+                console.log('Обновляем пост:', editingPostId);
+                console.log('Фото:', editSelectedPhotos.length);
+                console.log('Профили:', editSelectedProfiles.length);
+                
                 await db.collection('house_posts').doc(editingPostId).update({
                     text: text,
                     photoUrls: editSelectedPhotos,
                     profileIds: editSelectedProfiles
                 });
                 
+                console.log('Пост обновлен успешно');
                 closeEditPostModal();
                 await loadPosts();
                 alert('✅ Пост обновлен!');
@@ -1547,8 +1553,10 @@
             } catch (error) {
                 console.error('Ошибка обновления поста:', error);
                 alert('❌ Ошибка: ' + error.message);
+            } finally {
+                // ВСЕГДА разблокируем кнопку
                 submitBtn.disabled = false;
-                submitBtn.textContent = '💾 Сохранить';
+                submitBtn.textContent = originalText;
             }
         }
 
