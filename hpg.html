@@ -28,6 +28,16 @@
             color: #202020;
         }
 
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
         .container {
             max-width: 720px;
             margin: 14px auto;
@@ -1404,6 +1414,165 @@
                 position: relative;
                 touch-action: pan-y;
             }
+
+            /* Стили для вкладки изготовления */
+            .mobile-preparation-container {
+                display: none;
+                padding: 10px;
+                margin-top: 145px;
+                min-height: calc(100vh - 165px);
+            }
+
+            .mobile-prep-section {
+                background: white;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .mobile-prep-header {
+                background: linear-gradient(to right, #6c757d, #5a6268);
+                color: white;
+                padding: 12px 15px;
+                font-weight: bold;
+                font-size: 14px;
+            }
+
+            .mobile-prep-subheader {
+                background: #e9ecef;
+                padding: 8px 15px;
+                font-weight: bold;
+                font-size: 13px;
+                color: #495057;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .mobile-prep-item {
+                display: flex;
+                align-items: center;
+                padding: 10px 15px;
+                border-bottom: 1px solid #f0f0f0;
+                gap: 10px;
+            }
+
+            .mobile-prep-item:last-child {
+                border-bottom: none;
+            }
+
+            .mobile-prep-checkbox {
+                width: 24px;
+                height: 24px;
+                flex-shrink: 0;
+                accent-color: #4a90e2;
+            }
+
+            .mobile-prep-pump {
+                width: 45px;
+                padding: 6px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                text-align: center;
+                font-size: 13px;
+                font-weight: bold;
+                background: #f8f9fa;
+                flex-shrink: 0;
+            }
+
+            .mobile-prep-weight {
+                width: 80px;
+                padding: 8px;
+                border: 2px solid #4a90e2;
+                border-radius: 5px;
+                text-align: right;
+                font-size: 15px;
+                font-weight: bold;
+                flex-shrink: 0;
+            }
+
+            .mobile-prep-label {
+                flex: 1;
+                font-size: 13px;
+                color: #333;
+                line-height: 1.3;
+            }
+
+            .mobile-prep-controls {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .mobile-prep-input-group {
+                margin-bottom: 12px;
+            }
+
+            .mobile-prep-input-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+                color: #333;
+                font-size: 13px;
+            }
+
+            .mobile-prep-input-group input {
+                width: 100%;
+                padding: 10px;
+                font-size: 15px;
+                border: 2px solid #ddd;
+                border-radius: 5px;
+                box-sizing: border-box;
+            }
+
+            .mobile-prep-button {
+                width: 100%;
+                padding: 12px;
+                margin-bottom: 8px;
+                border: none;
+                border-radius: 5px;
+                font-size: 15px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .mobile-prep-button.primary {
+                background: #4a90e2;
+                color: white;
+            }
+
+            .mobile-prep-button.primary:active {
+                background: #357abd;
+            }
+
+            .mobile-prep-button.secondary {
+                background: #6c757d;
+                color: white;
+            }
+
+            .mobile-prep-button.secondary:active {
+                background: #5a6268;
+            }
+
+            .mobile-prep-button.success {
+                background: #28a745;
+                color: white;
+            }
+
+            .mobile-prep-button.success:active {
+                background: #218838;
+            }
+
+            .mobile-prep-item.checked {
+                background: #e8f5e9;
+            }
+
+            .mobile-prep-item.checked .mobile-prep-label {
+                text-decoration: line-through;
+                color: #999;
+            }
         }
     </style>
     
@@ -2003,31 +2172,31 @@
                         <div class="preparation-item">
                             <input type="text" id="mCaNO3" value="p1" class="prep-input">
                             <input type="checkbox" id="cbCaNO3" class="prep-checkbox">
-                            <input type="text" id="g2gCaNO3" value="0.00" class="prep-input">
+                            <input type="text" id="g2gCaNO3" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('CaNO3')">
                             <label for="k2nCaNO3" class="prep-label">Кальций азотнокислый 4-водный  (ч.)</label>
                         </div>
                         <div class="preparation-item">
                             <input type="text" id="mKNO3" value="p2" class="prep-input">
                             <input type="checkbox" id="cbKNO3" class="prep-checkbox">
-                            <input type="text" id="g2gKNO3" value="0.00" class="prep-input">
+                            <input type="text" id="g2gKNO3" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('KNO3')">
                             <label for="k2nKNO3" class="prep-label">Калий азотнокислый (ч.)</label>
                         </div>
                         <div class="preparation-item">
                             <input type="text" id="mNH4NO3" value="p3" class="prep-input">
                             <input type="checkbox" id="cbNH4NO3" class="prep-checkbox">
-                            <input type="text" id="g2gNH4NO3" value="0.00" class="prep-input">
+                            <input type="text" id="g2gNH4NO3" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('NH4NO3')">
                             <label for="k2nNH4NO3" class="prep-label">Аммоний азотнокислый (ч.)</label>
                         </div>
                         <div class="preparation-item">
                             <input type="text" id="mMgNO3" value="" class="prep-input">
                             <input type="checkbox" id="cbMgNO3" class="prep-checkbox">
-                            <input type="text" id="g2gMgNO3" value="0.00" class="prep-input">
+                            <input type="text" id="g2gMgNO3" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('MgNO3')">
                             <label for="k2nMgNO3" class="prep-label">Магний азотнокислый 6-водный (ч.)</label>
                         </div>
                         <div class="preparation-item">
                             <input type="text" id="mCaCl2" value="" class="prep-input">
                             <input type="checkbox" id="cbCaCl2" class="prep-checkbox">
-                            <input type="text" id="g2gCaCl2" value="0.00" class="prep-input">
+                            <input type="text" id="g2gCaCl2" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('CaCl2')">
                             <label for="k2nCaCl2" class="prep-label">Хлорид кальция 6-водный (ч.)</label>
                         </div>
                     </div>
@@ -2038,19 +2207,19 @@
                         <div class="preparation-item">
                             <input type="text" id="mMgSO4" value="p4" class="prep-input">
                             <input type="checkbox" id="cbMgSO4" class="prep-checkbox">
-                            <input type="text" id="g2gMgSO4" value="0.00" class="prep-input">
+                            <input type="text" id="g2gMgSO4" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('MgSO4')">
                             <label for="k2nMgSO4" class="prep-label">Магний сернокислый 7-водный (ч.)</label>
                         </div>
                         <div class="preparation-item">
                             <input type="text" id="mKH2PO4" value="p5" class="prep-input">
                             <input type="checkbox" id="cbKH2PO4" class="prep-checkbox">
-                            <input type="text" id="g2gKH2PO4" value="0.00" class="prep-input">
+                            <input type="text" id="g2gKH2PO4" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('KH2PO4')">
                             <label for="k2nKH2PO4" class="prep-label">Калий фосфорнокислый 1-замещенный (ч.)</label>
                         </div>
                         <div class="preparation-item">
                             <input type="text" id="mK2SO4" value="p6" class="prep-input">
                             <input type="checkbox" id="cbK2SO4" class="prep-checkbox">
-                            <input type="text" id="g2gK2SO4" value="0.00" class="prep-input">
+                            <input type="text" id="g2gK2SO4" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('K2SO4')">
                             <label for="k2nK2SO4" class="prep-label">Калий сернокислый безводный (ч.)</label>
                         </div>
                     </div>
@@ -2072,7 +2241,7 @@
                     <div class="preparation-item" id="complex-micro-item" style="display: none;">
                         <input type="text" id="mCmplx" value="" class="prep-input">
                         <input type="checkbox" id="cbCmplx" class="prep-checkbox">
-                        <input type="text" id="g2gCmplx" value="0.00" class="prep-input">
+                        <input type="text" id="g2gCmplx" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Cmplx')">
                         <label for="l2Cmplx" class="prep-label" id="l2Cmplx">Комплекс микроэлементов</label>
                     </div>
                     
@@ -2080,49 +2249,49 @@
                     <div class="preparation-item" id="individual-micro-Fe">
                         <input type="text" id="mFe" value="" class="prep-input">
                         <input type="checkbox" id="cbFe" class="prep-checkbox">
-                        <input type="text" id="g2gFe" value="0.00" class="prep-input">
+                        <input type="text" id="g2gFe" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Fe')">
                         <label for="l2Fe" class="prep-label">Железо (%)</label>
                     </div>
                     <div class="preparation-item" id="individual-micro-Mn">
                         <input type="text" id="mMn" value="" class="prep-input">
                         <input type="checkbox" id="cbMn" class="prep-checkbox">
-                        <input type="text" id="g2gMn" value="0.00" class="prep-input">
+                        <input type="text" id="g2gMn" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Mn')">
                         <label for="l2Mn" class="prep-label">Марганец (%)</label>
                     </div>
                     <div class="preparation-item" id="individual-micro-B">
                         <input type="text" id="mB" value="" class="prep-input">
                         <input type="checkbox" id="cbB" class="prep-checkbox">
-                        <input type="text" id="g2gB" value="0.00" class="prep-input">
+                        <input type="text" id="g2gB" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('B')">
                         <label for="l2B" class="prep-label">Бор (%)</label>
                     </div>
                     <div class="preparation-item" id="individual-micro-Zn">
                         <input type="text" id="mZn" value="" class="prep-input">
                         <input type="checkbox" id="cbZn" class="prep-checkbox">
-                        <input type="text" id="g2gZn" value="0.00" class="prep-input">
+                        <input type="text" id="g2gZn" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Zn')">
                         <label for="l2Zn" class="prep-label">Цинк (%)</label>
                     </div>
                     <div class="preparation-item" id="individual-micro-Cu">
                         <input type="text" id="mCu" value="" class="prep-input">
                         <input type="checkbox" id="cbCu" class="prep-checkbox">
-                        <input type="text" id="g2gCu" value="0.00" class="prep-input">
+                        <input type="text" id="g2gCu" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Cu')">
                         <label for="l2Cu" class="prep-label">Медь (%)</label>
                     </div>
                     <div class="preparation-item" id="individual-micro-Mo">
                         <input type="text" id="mMo" value="" class="prep-input">
                         <input type="checkbox" id="cbMo" class="prep-checkbox">
-                        <input type="text" id="g2gMo" value="0.00" class="prep-input">
+                        <input type="text" id="g2gMo" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Mo')">
                         <label for="l2Mo" class="prep-label">Молибден (%)</label>
                     </div>
                     <div class="preparation-item" id="individual-micro-Co">
                         <input type="text" id="mCo" value="" class="prep-input">
                         <input type="checkbox" id="cbCo" class="prep-checkbox">
-                        <input type="text" id="g2gCo" value="0.00" class="prep-input">
+                        <input type="text" id="g2gCo" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Co')">
                         <label for="l2Co" class="prep-label">Кобальт (%)</label>
                     </div>
                     <div class="preparation-item" id="individual-micro-Si">
                         <input type="text" id="mSi" value="" class="prep-input">
                         <input type="checkbox" id="cbSi" class="prep-checkbox">
-                        <input type="text" id="g2gSi" value="0.00" class="prep-input">
+                        <input type="text" id="g2gSi" value="0.00" class="prep-input" oninput="syncDesktopWeightToMobile('Si')">
                         <label for="l2Si" class="prep-label">Кремний (%)</label>
                     </div>
                 </div>
@@ -2352,12 +2521,12 @@
             <!-- Общий блок для всех подвкладок Концентратов -->
             <div class="volume-inputs">
                 <label>Тара A (мл)</label>
-                <input type="number" id="tank_A" value="500" step="1" oninput="calcConcentrates()">
+                <input type="number" id="tank_A" value="500" step="1" oninput="calcConcentrates(); syncTankToMobile('A')">
                 <span id="lVolA">Концентрат A (20:1) . Долить воды: 457мл. По 50 мл на 1л.</span>
             </div>
             <div class="volume-inputs">
                 <label>Тара B (мл)</label>
-                <input type="number" id="tank_B" value="500" step="1" oninput="calcConcentrates()">
+                <input type="number" id="tank_B" value="500" step="1" oninput="calcConcentrates(); syncTankToMobile('B')">
                 <span id="lVolB">Концентрат B (20:1) . Долить воды: 460мл. По 50 мл на 1л.</span>
             </div>
         </div>
@@ -4157,6 +4326,9 @@ K:Mg до 3,6 после 3,6</textarea>
             
             // Обновляем цены после изменения видимости
             updatePriceResults();
+            
+            // Обновляем мобильную версию вкладки изготовления
+            syncDesktopToMobilePreparation();
         }
 
         function onMicroVolumeChange() {
@@ -6683,6 +6855,9 @@ K:Mg до 3,6 после 3,6</textarea>
                 Cmplx: ggCmplx
             });
             
+            // Обновляем информацию о концентратах в мобильной версии
+            updateMobileConcentrateInfo();
+            
             // Обновление подвкладки цены - не нужно, так как updatePriceResults() вызывается в calcAll()
             // и берет данные напрямую из полей g_CaNO3, g_KNO3 и т.д.
         }
@@ -6924,12 +7099,23 @@ K:Mg до 3,6 после 3,6</textarea>
             document.getElementById('g2gKH2PO4').value = weights.KH2PO4.toFixed(2);
             document.getElementById('g2gK2SO4').value = weights.K2SO4.toFixed(2);
             
+            // Синхронизируем веса макроэлементов в мобильную версию
+            syncDesktopWeightToMobile('CaNO3');
+            syncDesktopWeightToMobile('KNO3');
+            syncDesktopWeightToMobile('NH4NO3');
+            syncDesktopWeightToMobile('MgNO3');
+            syncDesktopWeightToMobile('CaCl2');
+            syncDesktopWeightToMobile('MgSO4');
+            syncDesktopWeightToMobile('KH2PO4');
+            syncDesktopWeightToMobile('K2SO4');
+            
             // Обновляем весовые значения для микроэлементов
             const isComplexMode = document.getElementById('use_complex')?.checked || false;
             
             if (isComplexMode) {
                 // В режиме комплекса обновляем только поле комплекса
                 document.getElementById('g2gCmplx').value = weights.Cmplx.toFixed(2);
+                syncDesktopWeightToMobile('Cmplx');
             } else {
                 // В обычном режиме обновляем отдельные элементы
                 document.getElementById('g2gFe').value = weights.Fe.toFixed(2);
@@ -6940,6 +7126,16 @@ K:Mg до 3,6 после 3,6</textarea>
                 document.getElementById('g2gMo').value = weights.Mo.toFixed(2);
                 document.getElementById('g2gCo').value = weights.Co.toFixed(2);
                 document.getElementById('g2gSi').value = weights.Si.toFixed(2);
+                
+                // Синхронизируем веса микроэлементов в мобильную версию
+                syncDesktopWeightToMobile('Fe');
+                syncDesktopWeightToMobile('Mn');
+                syncDesktopWeightToMobile('B');
+                syncDesktopWeightToMobile('Zn');
+                syncDesktopWeightToMobile('Cu');
+                syncDesktopWeightToMobile('Mo');
+                syncDesktopWeightToMobile('Co');
+                syncDesktopWeightToMobile('Si');
             }
             
             // Получаем названия солей из единой системы (аналог SoilName из легаси)
@@ -6967,7 +7163,19 @@ K:Mg до 3,6 после 3,6</textarea>
             const gmlKH2PO4 = parseFloat(document.getElementById('conc_gmlKH2PO4')?.value) || 1.0000;
             const gmlK2SO4 = parseFloat(document.getElementById('conc_gmlK2SO4')?.value) || 1.0000;
             
-            // Обновляем названия с весовыми значениями и концентрациями (как в legacy CalcConc строки 1652-1659)
+            // Получаем СУХИЕ веса (граммы на литр раствора) из полей расчета
+            const dryWeights = {
+                CaNO3: parseFloat(document.getElementById('g_CaNO3')?.value) || 0,
+                KNO3: parseFloat(document.getElementById('g_KNO3')?.value) || 0,
+                NH4NO3: parseFloat(document.getElementById('g_NH4NO3')?.value) || 0,
+                MgNO3: parseFloat(document.getElementById('g_MgNO3')?.value) || 0,
+                CaCl2: parseFloat(document.getElementById('g_CaCl2')?.value) || 0,
+                MgSO4: parseFloat(document.getElementById('g_MgSO4')?.value) || 0,
+                KH2PO4: parseFloat(document.getElementById('g_KH2PO4')?.value) || 0,
+                K2SO4: parseFloat(document.getElementById('g_K2SO4')?.value) || 0
+            };
+            
+            // Обновляем названия с СУХИМИ весовыми значениями и концентрациями (как в legacy CalcConc строки 1652-1659)
             const k2nCaNO3 = document.querySelector('label[for="k2nCaNO3"]');
             const k2nKNO3 = document.querySelector('label[for="k2nKNO3"]');
             const k2nNH4NO3 = document.querySelector('label[for="k2nNH4NO3"]');
@@ -6977,14 +7185,14 @@ K:Mg до 3,6 после 3,6</textarea>
             const k2nK2SO4 = document.querySelector('label[for="k2nK2SO4"]');
             const k2nCaCl2 = document.querySelector('label[for="k2nCaCl2"]');
             
-            if (k2nCaNO3) k2nCaNO3.textContent = `${saltNames.CaNO3} ${weights.CaNO3.toFixed(3)} г. (${glCaNO3} г/л, ${gmlCaNO3.toFixed(4)} г/мл)`;
-            if (k2nKNO3) k2nKNO3.textContent = `${saltNames.KNO3} ${weights.KNO3.toFixed(3)} г. (${glKNO3} г/л, ${gmlKNO3.toFixed(4)} г/мл)`;
-            if (k2nNH4NO3) k2nNH4NO3.textContent = `${saltNames.NH4NO3} ${weights.NH4NO3.toFixed(3)} г. (${glNH4NO3} г/л, ${gmlNH4NO3.toFixed(4)} г/мл)`;
-            if (k2nMgNO3) k2nMgNO3.textContent = `${saltNames.MgNO3} ${weights.MgNO3.toFixed(3)} г. (${glMgNO3} г/л, ${gmlMgNO3.toFixed(4)} г/мл)`;
-            if (k2nMgSO4) k2nMgSO4.textContent = `${saltNames.MgSO4} ${weights.MgSO4.toFixed(3)} г. (${glMgSO4} г/л, ${gmlMgSO4.toFixed(4)} г/мл)`;
-            if (k2nKH2PO4) k2nKH2PO4.textContent = `${saltNames.KH2PO4} ${weights.KH2PO4.toFixed(3)} г. (${glKH2PO4} г/л, ${gmlKH2PO4.toFixed(4)} г/мл)`;
-            if (k2nK2SO4) k2nK2SO4.textContent = `${saltNames.K2SO4} ${weights.K2SO4.toFixed(3)} г. (${glK2SO4} г/л, ${gmlK2SO4.toFixed(4)} г/мл)`;
-            if (k2nCaCl2) k2nCaCl2.textContent = `${saltNames.CaCl2} ${weights.CaCl2.toFixed(3)} г. (${glCaCl2} г/л, ${gmlCaCl2.toFixed(4)} г/мл)`;
+            if (k2nCaNO3) k2nCaNO3.textContent = `${saltNames.CaNO3} ${dryWeights.CaNO3.toFixed(2)} г. (${glCaNO3} г/л, ${gmlCaNO3.toFixed(4)} г/мл)`;
+            if (k2nKNO3) k2nKNO3.textContent = `${saltNames.KNO3} ${dryWeights.KNO3.toFixed(2)} г. (${glKNO3} г/л, ${gmlKNO3.toFixed(4)} г/мл)`;
+            if (k2nNH4NO3) k2nNH4NO3.textContent = `${saltNames.NH4NO3} ${dryWeights.NH4NO3.toFixed(2)} г. (${glNH4NO3} г/л, ${gmlNH4NO3.toFixed(4)} г/мл)`;
+            if (k2nMgNO3) k2nMgNO3.textContent = `${saltNames.MgNO3} ${dryWeights.MgNO3.toFixed(2)} г. (${glMgNO3} г/л, ${gmlMgNO3.toFixed(4)} г/мл)`;
+            if (k2nMgSO4) k2nMgSO4.textContent = `${saltNames.MgSO4} ${dryWeights.MgSO4.toFixed(2)} г. (${glMgSO4} г/л, ${gmlMgSO4.toFixed(4)} г/мл)`;
+            if (k2nKH2PO4) k2nKH2PO4.textContent = `${saltNames.KH2PO4} ${dryWeights.KH2PO4.toFixed(2)} г. (${glKH2PO4} г/л, ${gmlKH2PO4.toFixed(4)} г/мл)`;
+            if (k2nK2SO4) k2nK2SO4.textContent = `${saltNames.K2SO4} ${dryWeights.K2SO4.toFixed(2)} г. (${glK2SO4} г/л, ${gmlK2SO4.toFixed(4)} г/мл)`;
+            if (k2nCaCl2) k2nCaCl2.textContent = `${saltNames.CaCl2} ${dryWeights.CaCl2.toFixed(2)} г. (${glCaCl2} г/л, ${gmlCaCl2.toFixed(4)} г/мл)`;
             
             // Обновляем названия микроэлементов (аналог CalcConc строки 1662-1669)
             const glFe = parseFloat(document.getElementById('conc_glFe')?.value) || 10;
@@ -7005,7 +7213,22 @@ K:Mg до 3,6 после 3,6</textarea>
             const gmlCo = parseFloat(document.getElementById('conc_gmlCo')?.value) || 1.000;
             const gmlSi = parseFloat(document.getElementById('conc_gmlSi')?.value) || 1.000;
             
-            const l2Cmplx = document.querySelector('.prep-complex-text');
+            // Получаем СУХИЕ веса для микроэлементов (граммы на литр раствора)
+            const dryMicroWeights = {
+                Fe: parseFloat(document.getElementById('g_Fe')?.value) || 0,
+                Mn: parseFloat(document.getElementById('g_Mn')?.value) || 0,
+                B: parseFloat(document.getElementById('g_B')?.value) || 0,
+                Zn: parseFloat(document.getElementById('g_Zn')?.value) || 0,
+                Cu: parseFloat(document.getElementById('g_Cu')?.value) || 0,
+                Mo: parseFloat(document.getElementById('g_Mo')?.value) || 0,
+                Co: parseFloat(document.getElementById('g_Co')?.value) || 0,
+                Si: parseFloat(document.getElementById('g_Si')?.value) || 0
+            };
+            const dryCmplx = dryMicroWeights.Fe + dryMicroWeights.Mn + dryMicroWeights.B + 
+                             dryMicroWeights.Zn + dryMicroWeights.Cu + dryMicroWeights.Mo + 
+                             dryMicroWeights.Co + dryMicroWeights.Si;
+            
+            const l2Cmplx = document.getElementById('l2Cmplx');
             const l2Fe = document.querySelector('label[for="l2Fe"]');
             const l2Mn = document.querySelector('label[for="l2Mn"]');
             const l2B = document.querySelector('label[for="l2B"]');
@@ -7015,15 +7238,18 @@ K:Mg до 3,6 после 3,6</textarea>
             const l2Co = document.querySelector('label[for="l2Co"]');
             const l2Si = document.querySelector('label[for="l2Si"]');
             
-            if (l2Cmplx) l2Cmplx.textContent = `Комплекс микроэлементов ${weights.Cmplx.toFixed(3)} г. (10 г/л, 1.000 г/мл)`;
-            if (l2Fe) l2Fe.textContent = `${microNames.Fe} ${weights.Fe.toFixed(3)} г. (${glFe} г/л, ${gmlFe.toFixed(3)} г/мл)`;
-            if (l2Mn) l2Mn.textContent = `${microNames.Mn} ${weights.Mn.toFixed(3)} г. (${glMn} г/л, ${gmlMn.toFixed(3)} г/мл)`;
-            if (l2B) l2B.textContent = `${microNames.B} ${weights.B.toFixed(3)} г. (${glB} г/л, ${gmlB.toFixed(3)} г/мл)`;
-            if (l2Zn) l2Zn.textContent = `${microNames.Zn} ${weights.Zn.toFixed(3)} г. (${glZn} г/л, ${gmlZn.toFixed(3)} г/мл)`;
-            if (l2Cu) l2Cu.textContent = `${microNames.Cu} ${weights.Cu.toFixed(3)} г. (${glCu} г/л, ${gmlCu.toFixed(3)} г/мл)`;
-            if (l2Mo) l2Mo.textContent = `${microNames.Mo} ${weights.Mo.toFixed(3)} г. (${glMo} г/л, ${gmlMo.toFixed(3)} г/мл)`;
-            if (l2Co) l2Co.textContent = `${microNames.Co} ${weights.Co.toFixed(3)} г. (${glCo} г/л, ${gmlCo.toFixed(3)} г/мл)`;
-            if (l2Si) l2Si.textContent = `${microNames.Si} ${weights.Si.toFixed(3)} г. (${glSi} г/л, ${gmlSi.toFixed(3)} г/мл)`;
+            if (l2Cmplx) l2Cmplx.textContent = `Комплекс микроэлементов ${dryCmplx.toFixed(2)} г. (10 г/л, 1.000 г/мл)`;
+            if (l2Fe) l2Fe.textContent = `${microNames.Fe} ${dryMicroWeights.Fe.toFixed(2)} г. (${glFe} г/л, ${gmlFe.toFixed(3)} г/мл)`;
+            if (l2Mn) l2Mn.textContent = `${microNames.Mn} ${dryMicroWeights.Mn.toFixed(2)} г. (${glMn} г/л, ${gmlMn.toFixed(3)} г/мл)`;
+            if (l2B) l2B.textContent = `${microNames.B} ${dryMicroWeights.B.toFixed(2)} г. (${glB} г/л, ${gmlB.toFixed(3)} г/мл)`;
+            if (l2Zn) l2Zn.textContent = `${microNames.Zn} ${dryMicroWeights.Zn.toFixed(2)} г. (${glZn} г/л, ${gmlZn.toFixed(3)} г/мл)`;
+            if (l2Cu) l2Cu.textContent = `${microNames.Cu} ${dryMicroWeights.Cu.toFixed(2)} г. (${glCu} г/л, ${gmlCu.toFixed(3)} г/мл)`;
+            if (l2Mo) l2Mo.textContent = `${microNames.Mo} ${dryMicroWeights.Mo.toFixed(2)} г. (${glMo} г/л, ${gmlMo.toFixed(3)} г/мл)`;
+            if (l2Co) l2Co.textContent = `${microNames.Co} ${dryMicroWeights.Co.toFixed(2)} г. (${glCo} г/л, ${gmlCo.toFixed(3)} г/мл)`;
+            if (l2Si) l2Si.textContent = `${microNames.Si} ${dryMicroWeights.Si.toFixed(2)} г. (${glSi} г/л, ${gmlSi.toFixed(3)} г/мл)`;
+            
+            // Обновляем мобильную версию вкладки изготовления
+            syncDesktopToMobilePreparation();
         }
         
         // Перевод фактических навесок в профиль (аналог btchClick из легаси строки 4269-4301)
@@ -7312,12 +7538,22 @@ K:Mg до 3,6 после 3,6</textarea>
             if (addrMixer) {
                 addrMixer.addEventListener('input', () => {
                     console.log(`Mixer address changed to: ${addrMixer.value}`);
+                    // Синхронизируем с мобильной версией
+                    const mobileAddr = document.getElementById('mobile-addrMixer');
+                    if (mobileAddr) {
+                        mobileAddr.value = addrMixer.value;
+                    }
                 });
             }
             
             if (nmix) {
                 nmix.addEventListener('input', () => {
                     console.log(`Mix number changed to: ${nmix.value}`);
+                    // Синхронизируем с мобильной версией
+                    const mobileNmix = document.getElementById('mobile-nmix');
+                    if (mobileNmix) {
+                        mobileNmix.value = nmix.value;
+                    }
                 });
             }
             
@@ -7457,37 +7693,145 @@ K:Mg до 3,6 после 3,6</textarea>
             // Получаем объем
             const volume = parseFloat(document.getElementById('volume')?.value) || 10;
             
-            // Формируем описание (как в легаси: m1.Text)
-            const desc = `Автозапись. Изготовлен раствор на ${volume} литров.`;
+            // Формируем описание по умолчанию (как в легаси: m1.Text)
+            const defaultDesc = `Автозапись. Изготовлен раствор на ${volume} литров.`;
             
             // Берем строку профиля из поля profile-string (аналог profile.Caption в легаси)
             const profileStr = document.getElementById('profile-string')?.value || '';
             
-            // Создаем запись журнала (как в легаси: date=...;...;...)
-            const journalEntry = {
-                date: currentDate,
-                desc: desc,
-                memo: desc, // Совместимость
-                profile: profileStr
+            // Показываем модальное окно для редактирования описания
+            showJournalEntryModal(currentDate, defaultDesc, profileStr);
+        }
+        
+        // Модальное окно для добавления записи в журнал
+        function showJournalEntryModal(date, defaultDesc, profileStr) {
+            // Создаем модальное окно
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = 'background: white; padding: 25px; border-radius: 8px; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);';
+            
+            modalContent.innerHTML = `
+                <h3 style="margin: 0 0 20px 0; color: #333; font-size: 18px;">📝 Добавить запись в журнал</h3>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Дата:</label>
+                    <input type="date" id="journal-modal-date" value="${date}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Описание:</label>
+                    <textarea id="journal-modal-desc" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; resize: vertical; font-family: Arial, sans-serif;">${defaultDesc}</textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="journal-modal-save" style="flex: 1; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer;">✓ Добавить</button>
+                    <button id="journal-modal-cancel" style="flex: 1; padding: 12px; background: #f44336; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer;">✗ Отмена</button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Фокус на поле описания и выделение текста
+            setTimeout(() => {
+                const descInput = document.getElementById('journal-modal-desc');
+                descInput.focus();
+                descInput.select();
+            }, 100);
+            
+            // Обработчик кнопки "Сохранить"
+            document.getElementById('journal-modal-save').onclick = () => {
+                const finalDate = document.getElementById('journal-modal-date').value;
+                const finalDesc = document.getElementById('journal-modal-desc').value.trim();
+                
+                if (!finalDesc) {
+                    alert('Введите описание записи');
+                    return;
+                }
+                
+                // Создаем запись журнала
+                const journalEntry = {
+                    date: finalDate,
+                    desc: finalDesc,
+                    memo: finalDesc,
+                    profile: profileStr
+                };
+                
+                // Добавляем в журнал
+                journalEntries.push(journalEntry);
+                
+                // Сортируем журнал по дате
+                journalEntries.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    return dateB - dateA;
+                });
+                
+                // Обновляем список журнала
+                updateJournalList();
+                
+                // Закрываем модальное окно
+                document.body.removeChild(modal);
+                
+                // Переключаемся на вкладку "Файл"
+                switchTab('file', document.querySelector('[onclick*="file"]'));
+                
+                // Показываем уведомление
+                showNotification('✓ Запись добавлена в журнал', 'success');
             };
             
-            // Добавляем в журнал
-            journalEntries.push(journalEntry);
+            // Обработчик кнопки "Отмена"
+            document.getElementById('journal-modal-cancel').onclick = () => {
+                document.body.removeChild(modal);
+            };
             
-            // Сортируем журнал по дате (как в легаси DStr.Sort)
-            journalEntries.sort((a, b) => {
-                const dateA = new Date(a.date);
-                const dateB = new Date(b.date);
-                return dateB - dateA; // Новые записи сверху
-            });
+            // Закрытие по клику на фон
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            };
             
-            // Обновляем список журнала
-            updateJournalList();
+            // Закрытие по Escape
+            const escapeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    if (document.body.contains(modal)) {
+                        document.body.removeChild(modal);
+                    }
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            document.addEventListener('keydown', escapeHandler);
+        }
+        
+        // Показать уведомление
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10001;
+                font-size: 14px;
+                font-weight: bold;
+                animation: slideIn 0.3s ease-out;
+            `;
             
-            // Переключаемся на вкладку "Файл" чтобы показать результат
-            switchTab('file', document.querySelector('[onclick*="file"]'));
+            document.body.appendChild(notification);
             
-            alert('Автозапись добавлена в журнал');
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
         }
         
         // Переключение между комплексом микроэлементов и отдельными элементами (как в legacy)
@@ -7764,6 +8108,7 @@ cgSi=0.2700`;
             updateMobileDisplay();
             checkMobileBanner();
             initSwipeControls();
+            initMobilePreparationHandlers();
             
             const k2so4Checkbox = document.getElementById('use_K2SO4');
             const mgno3Checkbox = document.getElementById('use_MgNO3');
@@ -8215,15 +8560,24 @@ cgSi=0.2700`;
             buttons.forEach(btn => btn.classList.remove('active'));
             
             const mainContent = document.querySelector('.mobile-content-wrapper');
+            const preparationContainer = document.getElementById('mobile-preparation-container');
             const journalContainer = document.getElementById('mobile-journal-container');
             
             if (tab === 'main') {
                 buttons[0].classList.add('active');
                 mainContent.style.display = 'block';
+                preparationContainer.style.display = 'none';
                 journalContainer.style.display = 'none';
-            } else if (tab === 'journal') {
+            } else if (tab === 'preparation') {
                 buttons[1].classList.add('active');
                 mainContent.style.display = 'none';
+                preparationContainer.style.display = 'block';
+                journalContainer.style.display = 'none';
+                updateMobilePreparation();
+            } else if (tab === 'journal') {
+                buttons[2].classList.add('active');
+                mainContent.style.display = 'none';
+                preparationContainer.style.display = 'none';
                 journalContainer.style.display = 'block';
                 updateMobileJournal();
             }
@@ -8671,6 +9025,334 @@ cgSi=0.2700`;
                     document.body.removeChild(modal);
                 }
             };
+        }
+
+        // Обновление мобильной вкладки изготовления
+        function updateMobilePreparation() {
+            // Синхронизируем данные из десктопной версии
+            syncDesktopToMobilePreparation();
+        }
+
+        // Синхронизация данных из десктопной версии в мобильную вкладку изготовления
+        function syncDesktopToMobilePreparation() {
+            // Макроэлементы
+            const macroSalts = ['CaNO3', 'KNO3', 'NH4NO3', 'MgNO3', 'CaCl2', 'MgSO4', 'KH2PO4', 'K2SO4'];
+            macroSalts.forEach(salt => {
+                // Помпа
+                const desktopPump = document.getElementById(`m${salt}`);
+                const mobilePump = document.getElementById(`mobile-m${salt}`);
+                if (desktopPump && mobilePump) {
+                    mobilePump.textContent = desktopPump.value;
+                }
+                
+                // Вес
+                const desktopWeight = document.getElementById(`g2g${salt}`);
+                const mobileWeight = document.getElementById(`mobile-g2g${salt}`);
+                if (desktopWeight && mobileWeight) {
+                    mobileWeight.value = desktopWeight.value;
+                }
+                
+                // Чекбокс
+                const desktopCheckbox = document.getElementById(`cb${salt}`);
+                const mobileCheckbox = document.getElementById(`mobile-cb${salt}`);
+                if (desktopCheckbox && mobileCheckbox) {
+                    mobileCheckbox.checked = desktopCheckbox.checked;
+                    // Обновляем визуальное состояние
+                    const mobileItem = document.getElementById(`mobile-prep-${salt}`);
+                    if (mobileItem) {
+                        if (mobileCheckbox.checked) {
+                            mobileItem.classList.add('checked');
+                        } else {
+                            mobileItem.classList.remove('checked');
+                        }
+                    }
+                }
+                
+                // Описание (название соли с весами и концентрациями)
+                const desktopLabel = document.querySelector(`label[for="k2n${salt}"]`);
+                const mobileDesc = document.getElementById(`mobile-desc-${salt}`);
+                if (desktopLabel && mobileDesc) {
+                    mobileDesc.textContent = desktopLabel.textContent;
+                }
+                
+                // Видимость (для опциональных солей)
+                const mobileItem = document.getElementById(`mobile-prep-${salt}`);
+                if (mobileItem && desktopWeight) {
+                    const weight = parseFloat(desktopWeight.value) || 0;
+                    if (weight > 0 || ['CaNO3', 'KNO3', 'NH4NO3', 'MgSO4', 'KH2PO4', 'K2SO4'].includes(salt)) {
+                        mobileItem.style.display = 'flex';
+                    } else {
+                        mobileItem.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Микроэлементы
+            const microElements = ['Fe', 'Mn', 'B', 'Zn', 'Cu', 'Mo', 'Co', 'Si'];
+            const isComplexMode = document.getElementById('use_complex')?.checked || false;
+            
+            microElements.forEach(elem => {
+                const mobileItem = document.getElementById(`mobile-prep-${elem}`);
+                
+                // Если включен режим комплекса - скрываем отдельные микроэлементы
+                if (isComplexMode) {
+                    if (mobileItem) mobileItem.style.display = 'none';
+                    return; // Пропускаем обновление, если элемент скрыт
+                }
+                
+                // Если не режим комплекса - показываем элемент
+                if (mobileItem) mobileItem.style.display = 'flex';
+                
+                // Помпа
+                const desktopPump = document.getElementById(`m${elem}`);
+                const mobilePump = document.getElementById(`mobile-m${elem}`);
+                if (desktopPump && mobilePump) {
+                    mobilePump.textContent = desktopPump.value;
+                }
+                
+                // Вес
+                const desktopWeight = document.getElementById(`g2g${elem}`);
+                const mobileWeight = document.getElementById(`mobile-g2g${elem}`);
+                if (desktopWeight && mobileWeight) {
+                    mobileWeight.value = desktopWeight.value;
+                }
+                
+                // Чекбокс
+                const desktopCheckbox = document.getElementById(`cb${elem}`);
+                const mobileCheckbox = document.getElementById(`mobile-cb${elem}`);
+                if (desktopCheckbox && mobileCheckbox) {
+                    mobileCheckbox.checked = desktopCheckbox.checked;
+                    // Обновляем визуальное состояние
+                    if (mobileItem) {
+                        if (mobileCheckbox.checked) {
+                            mobileItem.classList.add('checked');
+                        } else {
+                            mobileItem.classList.remove('checked');
+                        }
+                    }
+                }
+                
+                // Метка (название соли с сухим весом и концентрациями)
+                const desktopLabel = document.querySelector(`label[for="l2${elem}"]`);
+                const mobileDesc = document.getElementById(`mobile-desc-${elem}`);
+                if (desktopLabel && mobileDesc) {
+                    mobileDesc.textContent = desktopLabel.textContent;
+                }
+            });
+            
+            // Комплекс микроэлементов - показываем только в режиме комплекса
+            const desktopComplex = document.getElementById('g2gCmplx');
+            const mobileComplex = document.getElementById('mobile-g2gCmplx');
+            const mobileComplexItem = document.getElementById('mobile-prep-Cmplx');
+            
+            if (isComplexMode) {
+                // В режиме комплекса показываем комплекс
+                if (desktopComplex && mobileComplex) {
+                    mobileComplex.value = desktopComplex.value;
+                }
+                if (mobileComplexItem) {
+                    mobileComplexItem.style.display = 'flex';
+                }
+            } else {
+                // В обычном режиме скрываем комплекс
+                if (mobileComplexItem) {
+                    mobileComplexItem.style.display = 'none';
+                }
+            }
+            
+            // Описание комплекса (название с весом и концентрациями)
+            const desktopComplexLabel = document.getElementById('l2Cmplx');
+            const mobileComplexDesc = document.getElementById('mobile-desc-Cmplx');
+            if (desktopComplexLabel && mobileComplexDesc && isComplexMode) {
+                mobileComplexDesc.textContent = desktopComplexLabel.textContent;
+            }
+            
+            const desktopComplexCheckbox = document.getElementById('cbCmplx');
+            const mobileComplexCheckbox = document.getElementById('mobile-cbCmplx');
+            if (desktopComplexCheckbox && mobileComplexCheckbox) {
+                mobileComplexCheckbox.checked = desktopComplexCheckbox.checked;
+                const mobileComplexItem = document.getElementById('mobile-prep-Cmplx');
+                if (mobileComplexItem) {
+                    if (mobileComplexCheckbox.checked) {
+                        mobileComplexItem.classList.add('checked');
+                    } else {
+                        mobileComplexItem.classList.remove('checked');
+                    }
+                }
+            }
+            
+            // Настройки миксера
+            const desktopAddr = document.getElementById('addrMixer');
+            const mobileAddr = document.getElementById('mobile-addrMixer');
+            if (desktopAddr && mobileAddr) {
+                mobileAddr.value = desktopAddr.value;
+            }
+            
+            const desktopNmix = document.getElementById('nmix');
+            const mobileNmix = document.getElementById('mobile-nmix');
+            if (desktopNmix && mobileNmix) {
+                mobileNmix.value = desktopNmix.value;
+            }
+            
+            // Тары
+            const desktopTankA = document.getElementById('tank_A');
+            const mobileTankA = document.getElementById('mobile-tank_A');
+            if (desktopTankA && mobileTankA) {
+                mobileTankA.value = desktopTankA.value;
+            }
+            
+            const desktopTankB = document.getElementById('tank_B');
+            const mobileTankB = document.getElementById('mobile-tank_B');
+            if (desktopTankB && mobileTankB) {
+                mobileTankB.value = desktopTankB.value;
+            }
+            
+            // Обновляем информацию о концентратах
+            updateMobileConcentrateInfo();
+        }
+
+        // Обновление информации о концентратах в мобильной версии
+        function updateMobileConcentrateInfo() {
+            // Просто копируем текст из десктопных элементов lVolA и lVolB
+            const lVolA = document.getElementById('lVolA');
+            const lVolB = document.getElementById('lVolB');
+            
+            const infoA = document.getElementById('mobile-conc-a-info');
+            if (infoA && lVolA) {
+                infoA.textContent = lVolA.textContent;
+            }
+            
+            const infoB = document.getElementById('mobile-conc-b-info');
+            if (infoB && lVolB) {
+                infoB.textContent = lVolB.textContent;
+            }
+        }
+
+        // Переключение чекбокса в мобильной версии
+        function toggleMobilePrepItem(salt) {
+            const mobileCheckbox = document.getElementById(`mobile-cb${salt}`);
+            const desktopCheckbox = document.getElementById(`cb${salt}`);
+            
+            if (mobileCheckbox && desktopCheckbox) {
+                // Синхронизируем с десктопной версией
+                desktopCheckbox.checked = mobileCheckbox.checked;
+                
+                // Обновляем визуальное состояние
+                const mobileItem = document.getElementById(`mobile-prep-${salt}`);
+                if (mobileItem) {
+                    if (mobileCheckbox.checked) {
+                        mobileItem.classList.add('checked');
+                    } else {
+                        mobileItem.classList.remove('checked');
+                    }
+                }
+            }
+        }
+
+        // Синхронизация тар из десктопа в мобильный
+        function syncTankToMobile(tank) {
+            const desktopTank = document.getElementById(`tank_${tank}`);
+            const mobileTank = document.getElementById(`mobile-tank_${tank}`);
+            if (desktopTank && mobileTank) {
+                mobileTank.value = desktopTank.value;
+            }
+            updateMobileConcentrateInfo();
+        }
+
+        // Синхронизация весов из мобильного в десктопный
+        function syncMobileWeightToDesktop(element) {
+            const mobileWeight = document.getElementById(`mobile-g2g${element}`);
+            const desktopWeight = document.getElementById(`g2g${element}`);
+            if (mobileWeight && desktopWeight) {
+                desktopWeight.value = mobileWeight.value;
+            }
+        }
+
+        // Синхронизация весов из десктопа в мобильный
+        function syncDesktopWeightToMobile(element) {
+            const desktopWeight = document.getElementById(`g2g${element}`);
+            const mobileWeight = document.getElementById(`mobile-g2g${element}`);
+            if (desktopWeight && mobileWeight) {
+                mobileWeight.value = desktopWeight.value;
+            }
+        }
+
+        // Синхронизация помп из мобильного в десктопный
+        function syncMobilePumpToDesktop(element) {
+            const mobilePump = document.getElementById(`mobile-m${element}`);
+            const desktopPump = document.getElementById(`m${element}`);
+            if (mobilePump && desktopPump) {
+                desktopPump.value = mobilePump.value;
+            }
+        }
+
+        // Синхронизация помп из десктопа в мобильный
+        function syncDesktopPumpToMobile(element) {
+            const desktopPump = document.getElementById(`m${element}`);
+            const mobilePump = document.getElementById(`mobile-m${element}`);
+            if (desktopPump && mobilePump) {
+                mobilePump.value = desktopPump.value;
+            }
+        }
+
+        // Инициализация обработчиков для мобильной вкладки изготовления
+        function initMobilePreparationHandlers() {
+            // Обработчики для настроек миксера
+            const mobileAddr = document.getElementById('mobile-addrMixer');
+            if (mobileAddr) {
+                mobileAddr.addEventListener('input', function() {
+                    const desktopAddr = document.getElementById('addrMixer');
+                    if (desktopAddr) {
+                        desktopAddr.value = this.value;
+                    }
+                });
+            }
+            
+            const mobileNmix = document.getElementById('mobile-nmix');
+            if (mobileNmix) {
+                mobileNmix.addEventListener('input', function() {
+                    const desktopNmix = document.getElementById('nmix');
+                    if (desktopNmix) {
+                        desktopNmix.value = this.value;
+                    }
+                });
+            }
+            
+            // Обработчики для тар
+            const mobileTankA = document.getElementById('mobile-tank_A');
+            if (mobileTankA) {
+                mobileTankA.addEventListener('input', function() {
+                    const desktopTankA = document.getElementById('tank_A');
+                    if (desktopTankA) {
+                        desktopTankA.value = this.value;
+                        calcConcentrates(); // Пересчитываем концентраты
+                        updateMobileConcentrateInfo(); // Обновляем информацию
+                    }
+                });
+            }
+            
+            const mobileTankB = document.getElementById('mobile-tank_B');
+            if (mobileTankB) {
+                mobileTankB.addEventListener('input', function() {
+                    const desktopTankB = document.getElementById('tank_B');
+                    if (desktopTankB) {
+                        desktopTankB.value = this.value;
+                        calcConcentrates(); // Пересчитываем концентраты
+                        updateMobileConcentrateInfo(); // Обновляем информацию
+                    }
+                });
+            }
+            
+            // Инициализируем информацию о концентратах при загрузке
+            updateMobileConcentrateInfo();
+            
+            // Синхронизируем помпы из десктопа в мобильный при загрузке
+            const salts = ['CaNO3', 'KNO3', 'NH4NO3', 'MgNO3', 'CaCl2', 'MgSO4', 'KH2PO4', 'K2SO4', 
+                          'Fe', 'Mn', 'B', 'Zn', 'Cu', 'Mo', 'Co', 'Si', 'Cmplx'];
+            salts.forEach(salt => {
+                syncDesktopPumpToMobile(salt);
+                syncDesktopWeightToMobile(salt);
+            });
         }
 
         function checkMobileBanner() {
@@ -11861,6 +12543,7 @@ cgSi=0.2700`;
             </div>
             <div class="mobile-header-tabs">
                 <button class="mobile-tab-button active" onclick="switchMobileTab('main')">Основная</button>
+                <button class="mobile-tab-button" onclick="switchMobileTab('preparation')">Изготовление</button>
                 <button class="mobile-tab-button" onclick="switchMobileTab('journal')">Журнал</button>
             </div>
         </div>
@@ -12059,6 +12742,392 @@ cgSi=0.2700`;
             <div class="mobile-journal-list" id="mobile-journal-list">
                 <div class="mobile-journal-empty">📋 Журнал пуст</div>
             </div>
+        </div>
+
+        <!-- Контейнер изготовления (скрыт по умолчанию) -->
+        <div class="mobile-preparation-container" id="mobile-preparation-container">
+            
+            <!-- Макроэлементы -->
+            <div class="mobile-prep-section">
+                <div class="mobile-prep-header">🌿 Макроэлементы</div>
+                
+                <div class="mobile-prep-subheader">Раствор A</div>
+                <div id="mobile-prep-CaNO3" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbCaNO3" onchange="toggleMobilePrepItem('CaNO3')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Селитра кальциевая CaO-27% N-14.9%</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mCaNO3" value="p1" oninput="syncMobilePumpToDesktop('CaNO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gCaNO3" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('CaNO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-CaNO3" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-KNO3" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbKNO3" onchange="toggleMobilePrepItem('KNO3')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Селитра калиевая K2O-46% N-13.7%</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mKNO3" value="p2" oninput="syncMobilePumpToDesktop('KNO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gKNO3" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('KNO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-KNO3" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-NH4NO3" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbNH4NO3" onchange="toggleMobilePrepItem('NH4NO3')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Аммоний азотнокислый NH4NO3</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mNH4NO3" value="p3" oninput="syncMobilePumpToDesktop('NH4NO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gNH4NO3" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('NH4NO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-NH4NO3" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-MgNO3" style="display: none; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbMgNO3" onchange="toggleMobilePrepItem('MgNO3')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Магний азотнокислый 6-водный</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mMgNO3" value="" oninput="syncMobilePumpToDesktop('MgNO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gMgNO3" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('MgNO3')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-MgNO3" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-CaCl2" style="display: none; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbCaCl2" onchange="toggleMobilePrepItem('CaCl2')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Хлорид кальция 6-водный</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mCaCl2" value="" oninput="syncMobilePumpToDesktop('CaCl2')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gCaCl2" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('CaCl2')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-CaCl2" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mobile-prep-subheader">Раствор B</div>
+                <div id="mobile-prep-MgSO4" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbMgSO4" onchange="toggleMobilePrepItem('MgSO4')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Магний сернокислый MgSO4*7H2O</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mMgSO4" value="p4" oninput="syncMobilePumpToDesktop('MgSO4')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gMgSO4" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('MgSO4')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-MgSO4" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-KH2PO4" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbKH2PO4" onchange="toggleMobilePrepItem('KH2PO4')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Монофосфат калия K2O-33.1% P2O5-50%</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mKH2PO4" value="p5" oninput="syncMobilePumpToDesktop('KH2PO4')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gKH2PO4" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('KH2PO4')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-KH2PO4" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-K2SO4" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbK2SO4" onchange="toggleMobilePrepItem('K2SO4')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Калий сернокислый K2SO4</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mK2SO4" value="p6" oninput="syncMobilePumpToDesktop('K2SO4')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gK2SO4" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('K2SO4')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-K2SO4" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Микроэлементы -->
+            <div class="mobile-prep-section">
+                <div class="mobile-prep-header">🔬 Микроэлементы</div>
+                
+                <div id="mobile-prep-Cmplx" style="display: none; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbCmplx" onchange="toggleMobilePrepItem('Cmplx')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Комплекс микроэлементов</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mCmplx" value="p7" oninput="syncMobilePumpToDesktop('Cmplx')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gCmplx" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Cmplx')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Cmplx" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="mobile-prep-Fe" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbFe" onchange="toggleMobilePrepItem('Fe')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2Fe" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Железо</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mFe" value="" oninput="syncMobilePumpToDesktop('Fe')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gFe" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Fe')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Fe" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-Mn" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbMn" onchange="toggleMobilePrepItem('Mn')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2Mn" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Марганец</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mMn" value="" oninput="syncMobilePumpToDesktop('Mn')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gMn" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Mn')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Mn" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-B" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbB" onchange="toggleMobilePrepItem('B')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2B" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Бор</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mB" value="" oninput="syncMobilePumpToDesktop('B')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gB" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('B')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-B" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-Zn" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbZn" onchange="toggleMobilePrepItem('Zn')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2Zn" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Цинк</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mZn" value="" oninput="syncMobilePumpToDesktop('Zn')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gZn" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Zn')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Zn" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-Cu" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbCu" onchange="toggleMobilePrepItem('Cu')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2Cu" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Медь</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mCu" value="" oninput="syncMobilePumpToDesktop('Cu')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gCu" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Cu')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Cu" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-Mo" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbMo" onchange="toggleMobilePrepItem('Mo')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2Mo" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Молибден</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mMo" value="" oninput="syncMobilePumpToDesktop('Mo')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gMo" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Mo')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Mo" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-Co" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbCo" onchange="toggleMobilePrepItem('Co')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2Co" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Кобальт</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mCo" value="" oninput="syncMobilePumpToDesktop('Co')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gCo" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Co')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Co" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobile-prep-Si" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                        <input type="checkbox" id="mobile-cbSi" onchange="toggleMobilePrepItem('Si')" style="width: 24px; height: 24px; margin-right: 10px; flex-shrink: 0;">
+                        <div style="flex: 1;">
+                            <div id="mobile-l2Si" style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 8px;">Кремний</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Помпа:</div>
+                                    <input type="text" id="mobile-mSi" value="" oninput="syncMobilePumpToDesktop('Si')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold;">
+                                </div>
+                                <div style="flex: 2;">
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Вес (гр):</div>
+                                    <input type="number" id="mobile-g2gSi" value="0.00" step="0.01" oninput="syncMobileWeightToDesktop('Si')" style="width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; text-align: right; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div id="mobile-desc-Si" style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Настройки миксера и кнопки -->
+            <div class="mobile-prep-controls">
+                <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #495057;">⚙️ Настройки миксера</h4>
+                
+                <div class="mobile-prep-input-group">
+                    <label>Адрес миксера:</label>
+                    <input type="text" id="mobile-addrMixer" value="mixer.local">
+                </div>
+                
+                <div class="mobile-prep-input-group">
+                    <label>Номер:</label>
+                    <input type="number" id="mobile-nmix" value="1" min="1">
+                </div>
+                
+                <button class="mobile-prep-button primary" onclick="manufactureSolution()">
+                    🔄 Изготовить на миксере
+                </button>
+                <button class="mobile-prep-button secondary" onclick="transferToProfile()">
+                    📝 Перевести в профиль
+                </button>
+                <button class="mobile-prep-button success" onclick="addToJournal()">
+                    📋 Внести в журнал
+                </button>
+            </div>
+
+            <!-- Информация о концентратах -->
+            <div class="mobile-prep-controls">
+                <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #495057;">📊 Информация о концентратах</h4>
+                
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 5px; margin-bottom: 8px;">
+                    <div style="font-weight: bold; margin-bottom: 5px;">Тара A (мл):</div>
+                    <input type="number" id="mobile-tank_A" value="500" step="10" style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; font-size: 15px; font-weight: bold;">
+                    <div style="margin-top: 8px; font-size: 13px; color: #666;" id="mobile-conc-a-info"></div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 5px;">
+                    <div style="font-weight: bold; margin-bottom: 5px;">Тара B (мл):</div>
+                    <input type="number" id="mobile-tank_B" value="500" step="10" style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; font-size: 15px; font-weight: bold;">
+                    <div style="margin-top: 8px; font-size: 13px; color: #666;" id="mobile-conc-b-info"></div>
+                </div>
+            </div>
+            
         </div>
 
         <!-- Информация -->
