@@ -10,7 +10,7 @@
         // ВЕРСИЯ И ДАТА (изменяй только здесь!)
         // ============================================
         const APP_VERSION = '0.221';
-        const APP_DATE = '13.10.2025';
+        const APP_DATE = '10.11.2025';
         const APP_VERSION_FULL = `${APP_VERSION} (HTML5 порт - ${APP_DATE})`;
     </script>
     
@@ -1835,35 +1835,35 @@
                     <tbody>
                         <tr>
                             <td>Кальций азотнокислый Ca(NO3)2*4H2O</td>
-                            <td><input type="number" id="conc_glCaNO3" value="600.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glCaNO3" value="600.0" step="0.1" oninput="onConcentrationChange('CaNO3')"></td>
                             <td><input type="number" id="conc_gmlCaNO3" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" id="conc_mlCaNO3" value="19.63" step="0.01" readonly></td>
                             <td><input type="number" id="conc_ggCaNO3" value="19.63" step="0.01" readonly></td>
                         </tr>
                         <tr>
                             <td>Калий азотнокислый KNO3</td>
-                            <td><input type="number" id="conc_glKNO3" value="250.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glKNO3" value="250.0" step="0.1" oninput="onConcentrationChange('KNO3')"></td>
                             <td><input type="number" id="conc_gmlKNO3" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" id="conc_mlKNO3" value="11.60" step="0.01" readonly></td>
                             <td><input type="number" id="conc_ggKNO3" value="11.60" step="0.01" readonly></td>
                         </tr>
                         <tr>
                             <td>Аммоний азотнокислый NH4NO3</td>
-                            <td><input type="number" id="conc_glNH4NO3" value="100.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glNH4NO3" value="100.0" step="0.1" oninput="onConcentrationChange('NH4NO3')"></td>
                             <td><input type="number" id="conc_gmlNH4NO3" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" id="conc_mlNH4NO3" value="11.40" step="0.01" readonly></td>
                             <td><input type="number" id="conc_ggNH4NO3" value="11.40" step="0.01" readonly></td>
                         </tr>
                         <tr>
                             <td>Магний азотнокислый Mg(NO3)2*6H2O</td>
-                            <td><input type="number" id="conc_glMgNO3" value="500.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glMgNO3" value="500.0" step="0.1" oninput="onConcentrationChange('MgNO3')"></td>
                             <td><input type="number" id="conc_gmlMgNO3" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" id="conc_mlMgNO3" value="0.00" step="0.01" readonly></td>
                             <td><input type="number" id="conc_ggMgNO3" value="0.00" step="0.01" readonly></td>
                         </tr>
                         <tr>
                             <td>Хлорид кальция 6-водный CaCl2*6H2O</td>
-                            <td><input type="number" id="conc_glCaCl2" value="100.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glCaCl2" value="100.0" step="0.1" oninput="onConcentrationChange('CaCl2')"></td>
                             <td><input type="number" id="conc_gmlCaCl2" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" id="conc_mlCaCl2" value="0.00" step="0.01" readonly></td>
                             <td><input type="number" id="conc_ggCaCl2" value="0.00" step="0.01" readonly></td>
@@ -1888,21 +1888,21 @@
                     <tbody>
                         <tr>
                             <td>Магний сернокислый MgSO4*7H2O</td>
-                            <td><input type="number" id="conc_glMgSO4" value="600.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glMgSO4" value="600.0" step="0.1" oninput="onConcentrationChange('MgSO4')"></td>
                             <td><input type="number" id="conc_gmlMgSO4" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" value="8.45" step="0.01" readonly></td>
                             <td><input type="number" value="8.45" step="0.01" readonly></td>
                         </tr>
                         <tr>
                             <td>Калий фосфорнокислый KH2PO4</td>
-                            <td><input type="number" id="conc_glKH2PO4" value="150.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glKH2PO4" value="150.0" step="0.1" oninput="onConcentrationChange('KH2PO4')"></td>
                             <td><input type="number" id="conc_gmlKH2PO4" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" value="11.73" step="0.01" readonly></td>
                             <td><input type="number" value="11.73" step="0.01" readonly></td>
                         </tr>
                         <tr>
                             <td>Калий сернокислый K2SO4</td>
-                            <td><input type="number" id="conc_glK2SO4" value="100.0" step="0.1" oninput="calcConcentrates()"></td>
+                            <td><input type="number" id="conc_glK2SO4" value="100.0" step="0.1" oninput="onConcentrationChange('K2SO4')"></td>
                             <td><input type="number" id="conc_gmlK2SO4" value="1.0000" step="0.0001" oninput="calcConcentrates()"></td>
                             <td><input type="number" value="3.80" step="0.01" readonly></td>
                             <td><input type="number" value="3.80" step="0.01" readonly></td>
@@ -3735,6 +3735,7 @@ K:Mg до 3,6 после 3,6</textarea>
                 syncSaltCompositions();
                 updateSaltLabels();
                 updateSaltNames(); // Обновляем названия солей (как SoilName в легаси)
+                
                 calcWeight(getValues());
                 applyWeightsToProfile({ sync: false });
                 calcConcentrates(); // Обновляем концентраты и изготовление (как CalcConc в легаси)
@@ -6327,6 +6328,134 @@ K:Mg до 3,6 после 3,6</textarea>
             switchTab('file', document.querySelector('[onclick*="file"]'));
             
             alert('Данные корректора сохранены в журнал');
+        }
+
+        // ========== АВТОМАТИЧЕСКИЙ РАСЧЕТ ПЛОТНОСТИ ИЗ КОНЦЕНТРАЦИИ ==========
+        // (аналог glCaNO3Change, glKNO3Change и т.д. из легаси, строки 3139-3220)
+        //
+        // ВАЖНО: Плотность рассчитывается автоматически ТОЛЬКО при изменении концентрации (г/л).
+        // При загрузке из файла плотность берется из файла как есть, так как пользователь
+        // мог вручную скорректировать её для точного взвешивания реальной жидкости.
+        //
+        // Плотность рассчитывается по квадратичной формуле от молярной концентрации:
+        // density = a + b*kmol - c*kmol²
+        // где kmol = concentration / (molecular_weight / element_percent)
+        
+        // Получить процентное содержание элемента в соли из вкладки "Справка"
+        function getSaltComposition() {
+            return {
+                CaNO3_Ca: parseFloat(document.getElementById('salt_CaNO3_Ca')?.value) || 16.972,
+                KNO3_K: parseFloat(document.getElementById('salt_KNO3_K')?.value) || 38.672,
+                NH4NO3_NO3: parseFloat(document.getElementById('salt_NH4NO3_NO3')?.value) || 17.499,
+                MgNO3_Mg: parseFloat(document.getElementById('salt_MgNO3_Mg')?.value) || 9.479,
+                MgSO4_Mg: parseFloat(document.getElementById('salt_MgSO4_Mg')?.value) || 9.861,
+                KH2PO4_K: parseFloat(document.getElementById('salt_KH2PO4_K')?.value) || 28.731,
+                K2SO4_K: parseFloat(document.getElementById('salt_K2SO4_K')?.value) || 44.874,
+                CaCl2_Ca: parseFloat(document.getElementById('salt_CaCl2_Ca')?.value) || 18.294
+            };
+        }
+        
+        // Расчет плотности Ca(NO3)2 из концентрации (легаси строки 3139-3146)
+        function calcDensityCaNO3(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / (24.4247 / comp.CaNO3_Ca);
+            return 0.999 + 0.000732 * kmol - 0.000000113 * kmol * kmol;
+        }
+        
+        // Расчет плотности KNO3 из концентрации (легаси строки 3179-3186)
+        function calcDensityKNO3(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / (38.6717 / comp.KNO3_K);
+            return 0.998 + 0.00062 * kmol - 0.000000114 * kmol * kmol;
+        }
+        
+        // Расчет плотности NH4NO3 из концентрации (легаси строки 3214-3220)
+        function calcDensityNH4NO3(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / ((34.9978 / 2) / comp.NH4NO3_NO3);
+            return 0.999 + 0.000397 * kmol - 0.0000000422 * kmol * kmol;
+        }
+        
+        // Расчет плотности Mg(NO3)2 из концентрации (легаси строки 3188-3194)
+        function calcDensityMgNO3(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / (16.3874 / comp.MgNO3_Mg);
+            return 0.998 + 0.000736 * kmol - 0.000000121 * kmol * kmol;
+        }
+        
+        // Расчет плотности MgSO4 из концентрации (легаси строки 3196-3202)
+        function calcDensityMgSO4(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / (20.1923 / comp.MgSO4_Mg);
+            return 0.999 + 0.00097 * kmol - 0.000000268 * kmol * kmol;
+        }
+        
+        // Расчет плотности KH2PO4 из концентрации (легаси строки 3171-3177)
+        function calcDensityKH2PO4(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / (28.7307 / comp.KH2PO4_K);
+            return 0.998 + 0.000716 * kmol - 0.000000399 * kmol * kmol;
+        }
+        
+        // Расчет плотности K2SO4 из концентрации (легаси строки 3163-3169)
+        function calcDensityK2SO4(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / (44.8737 / comp.K2SO4_K);
+            return 0.998 + 0.000814 * kmol - 0.00000039 * kmol * kmol;
+        }
+        
+        // Расчет плотности CaCl2 из концентрации (легаси строки 3129-3137)
+        function calcDensityCaCl2(glValue) {
+            const comp = getSaltComposition();
+            const kmol = glValue / (36.1115 / comp.CaCl2_Ca);
+            return 0.999 + 0.000794 * kmol - 0.000000151 * kmol * kmol;
+        }
+        
+        // Обработчики изменения концентрации с автоматическим пересчетом плотности
+        function onConcentrationChange(saltName) {
+            const glField = document.getElementById(`conc_gl${saltName}`);
+            const gmlField = document.getElementById(`conc_gml${saltName}`);
+            
+            if (!glField || !gmlField) return;
+            
+            const glValue = parseFloat(glField.value) || 0;
+            let density = 1.0;
+            
+            // Вычисляем плотность по формуле в зависимости от соли
+            switch(saltName) {
+                case 'CaNO3':
+                    density = calcDensityCaNO3(glValue);
+                    break;
+                case 'KNO3':
+                    density = calcDensityKNO3(glValue);
+                    break;
+                case 'NH4NO3':
+                    density = calcDensityNH4NO3(glValue);
+                    break;
+                case 'MgNO3':
+                    density = calcDensityMgNO3(glValue);
+                    break;
+                case 'MgSO4':
+                    density = calcDensityMgSO4(glValue);
+                    break;
+                case 'KH2PO4':
+                    density = calcDensityKH2PO4(glValue);
+                    break;
+                case 'K2SO4':
+                    density = calcDensityK2SO4(glValue);
+                    break;
+                case 'CaCl2':
+                    density = calcDensityCaCl2(glValue);
+                    break;
+                default:
+                    density = 1.0; // Для микроэлементов используем 1.0 по умолчанию
+            }
+            
+            // Обновляем поле плотности (округляем до 4 знаков)
+            gmlField.value = density.toFixed(4);
+            
+            // Вызываем пересчет концентратов
+            calcConcentrates();
         }
 
         // Функции для расчета концентратов (аналог CalcConc из легаси)
