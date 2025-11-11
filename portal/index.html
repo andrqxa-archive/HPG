@@ -469,11 +469,159 @@
             color: white;
         }
 
+        .view-mode-toggle {
+            display: flex;
+            gap: 8px;
+            background: white;
+            border: 2px solid #4a9d9d;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .view-mode-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #4a9d9d;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-mode-btn:hover {
+            background: #f0f9f9;
+        }
+
+        .view-mode-btn.active {
+            background: #4a9d9d;
+            color: white;
+        }
+
         .profiles-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
             margin-bottom: 40px;
+        }
+
+        .profiles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .profile-list-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            overflow: hidden;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-list-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .profile-list-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .profile-list-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-list-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .profile-list-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .profile-list-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d7a7a;
+            cursor: pointer;
+        }
+
+        .profile-list-title:hover {
+            text-decoration: underline;
+        }
+
+        .profile-list-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .profile-list-tags .tag {
+            font-size: 11px;
+            padding: 2px 6px;
+        }
+
+        .profile-list-description {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .profile-list-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #888;
+            align-items: center;
+        }
+
+        .profile-list-meta > div {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .profile-list-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .profile-list-actions .btn-small {
+            padding: 8px 12px;
+            font-size: 20px;
+            line-height: 1;
         }
 
         .profile-card {
@@ -1533,8 +1681,43 @@
                 grid-template-columns: 1fr;
             }
 
+            .profiles-list {
+                gap: 8px;
+            }
+
+            .profile-list-item {
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+
+            .profile-list-main {
+                flex: 1 1 100%;
+            }
+
+            .profile-list-actions {
+                flex: 1 1 100%;
+                justify-content: flex-end;
+            }
+
+            .profile-list-meta {
+                gap: 10px;
+                font-size: 11px;
+            }
+
+            .profile-list-description {
+                font-size: 12px;
+            }
+
             .filters-row {
                 flex-direction: column;
+            }
+
+            .view-mode-toggle {
+                width: 100%;
+            }
+
+            .view-mode-btn {
+                flex: 1;
             }
 
             .search-box {
@@ -1699,6 +1882,15 @@
                             </div>
                         </div>
 
+                        <div class="view-mode-toggle">
+                            <button class="view-mode-btn active" data-mode="grid" title="Карточки">
+                                ⊞ Карточки
+                            </button>
+                            <button class="view-mode-btn" data-mode="list" title="Список">
+                                ☰ Список
+                            </button>
+                        </div>
+
                         <div class="stats">
                             <span id="profileCount">Загрузка...</span>
                         </div>
@@ -1748,6 +1940,7 @@
         let filteredProfiles = [];
         let userFilter = 'all'; // 'all' или 'my' для профилей
         let activityFilter = 'all'; // 'all' или 'my' для ленты активности
+        let viewMode = 'grid'; // 'grid' или 'list' для отображения профилей
 
         // Кеш фото пользователей (глобальный)
         const userPhotosCache = {};
@@ -2062,16 +2255,19 @@
 
             profileCount.textContent = `${filteredProfiles.length} ${getProfileWord(filteredProfiles.length)}`;
 
-            const grid = document.createElement('div');
-            grid.className = 'profiles-grid';
+            // Создаём контейнер в зависимости от режима отображения
+            const profilesContainer = document.createElement('div');
+            profilesContainer.className = viewMode === 'grid' ? 'profiles-grid' : 'profiles-list';
 
             profilesToShow.forEach(profile => {
-                const card = createProfileCard(profile);
-                grid.appendChild(card);
+                const element = viewMode === 'grid' 
+                    ? createProfileCard(profile) 
+                    : createProfileListItem(profile);
+                profilesContainer.appendChild(element);
             });
 
             container.innerHTML = '';
-            container.appendChild(grid);
+            container.appendChild(profilesContainer);
 
             // Добавляем пагинацию если нужно
             if (totalPages > 1) {
@@ -2204,6 +2400,67 @@
             `;
 
             return card;
+        }
+
+        // Создание элемента списка профиля
+        function createProfileListItem(profile) {
+            const item = document.createElement('div');
+            item.className = 'profile-list-item';
+
+            const date = profile.modified?.toDate().toLocaleDateString('ru-RU') || '';
+            const views = profile.views || 0;
+            const author = profile.userName || profile.userEmail || 'Аноним';
+            const avatarUrl = profile.userPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&size=45&background=667eea&color=fff`;
+            const description = profile.description || '';
+
+            item.innerHTML = `
+                <div class="profile-list-avatar" title="${escapeHtml(author)}">
+                    <img src="${avatarUrl}" alt="${escapeHtml(author)}">
+                </div>
+                <div class="profile-list-main">
+                    <div class="profile-list-title-row">
+                        <span class="profile-list-title" onclick="showProfileDetail('${profile.id}')">
+                            🌐 ${escapeHtml(profile.name)}
+                        </span>
+                        ${profile.tags && profile.tags.length > 0 ? `
+                            <div class="profile-list-tags">
+                                ${profile.tags.map(tag => `<span class="tag">🏷️ ${escapeHtml(tag)}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${description ? `<div class="profile-list-description">${escapeHtml(description)}</div>` : ''}
+                    <div class="profile-list-meta">
+                        <div>👤 ${escapeHtml(author)}</div>
+                        <div>📅 ${date}</div>
+                        <div>👁️ ${views}</div>
+                        <div style="cursor: pointer;" onclick="likeProfile('${profile.id}')" title="Нравится">
+                            👍 <span id="likes-${profile.id}">${profile.likes || 0}</span>
+                        </div>
+                        <div style="cursor: pointer;" onclick="dislikeProfile('${profile.id}')" title="Не нравится">
+                            👎 <span id="dislikes-${profile.id}">${profile.dislikes || 0}</span>
+                        </div>
+                        <div>💬 ${profile.commentsCount || 0}</div>
+                        ${profile.profileString ? `<div>⚗️ Профиль</div>` : ''}
+                        ${profile.journal && profile.journal.length ? `<div>📓 Журнал (${profile.journal.length})</div>` : ''}
+                    </div>
+                </div>
+                <div class="profile-list-actions">
+                    <button class="btn btn-secondary btn-small" onclick="showProfileDetail('${profile.id}')" title="Подробно">
+                        ⛶
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="openInCalculator('${profile.id}')" title="Открыть в калькуляторе">
+                        ⚗️
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="showComments('${profile.id}', '${escapeHtml(profile.name)}')" title="Комментарии">
+                        💬
+                    </button>
+                    <button class="btn btn-light btn-small" onclick="copyShareLink('${profile.id}', '${escapeHtml(profile.name)}')" title="Поделиться">
+                        🔗
+                    </button>
+                </div>
+            `;
+
+            return item;
         }
 
         // Открыть профиль в калькуляторе
@@ -4642,6 +4899,23 @@
         document.getElementById('searchInput').addEventListener('input', debouncedApplyFilters);
         document.getElementById('tagFilter').addEventListener('change', applyFilters);
         document.getElementById('sortSelect').addEventListener('change', applyFilters);
+
+        // Обработчики переключения режима отображения
+        document.querySelectorAll('.view-mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.mode;
+                if (mode !== viewMode) {
+                    viewMode = mode;
+                    
+                    // Переключаем активную кнопку
+                    document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Перерисовываем профили
+                    renderProfiles();
+                }
+            });
+        });
 
         // Обработка хэша для открытия профиля по прямой ссылке
         function handleProfileHash() {
