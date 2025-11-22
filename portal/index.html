@@ -2007,8 +2007,9 @@
                 // Пользователь не авторизован
                 console.log('Пользователь не авторизован');
                 document.getElementById('login-btn').style.display = 'block';
-                document.getElementById('gallery-btn').style.display = 'none';
-                document.getElementById('houses-btn').style.display = 'none';
+                // Галерея и Домики доступны и без авторизации
+                document.getElementById('gallery-btn').style.display = 'inline-block';
+                document.getElementById('houses-btn').style.display = 'inline-block';
                 document.getElementById('upload-btn').style.display = 'none';
                 document.getElementById('user-info').style.display = 'none';
                 document.getElementById('user-avatar').style.display = 'none';
