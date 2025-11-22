@@ -312,6 +312,35 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
+        .scope-switcher {
+            display: flex;
+            background: #f1f3f4;
+            padding: 4px;
+            border-radius: 12px;
+            gap: 5px;
+        }
+
+        .scope-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .scope-btn.active {
+            background: white;
+            color: #4a9d9d;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
         .photo-card-modern {
             position: relative;
             border-radius: 16px;
@@ -394,6 +423,28 @@
             overflow: hidden;
             text-overflow: ellipsis;
             opacity: 0.9;
+        }
+
+        .photo-source-button {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .photo-source-button:hover {
+            background: #ffe0b2;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -560,6 +611,7 @@
         let photos = [];
         let allLoadedProfiles = [];
         let currentViewMode = 'photos'; // 'folders' | 'photos'
+        let currentDataScope = 'public'; // 'my' | 'public', задается загрузчиками
 
         const urlParams = new URLSearchParams(window.location.search);
         const profileId = urlParams.get('profile');
@@ -576,8 +628,8 @@
                 // Если указан houseId, загружаем галерею домика
                 loadHouseGallery();
             } else if (!currentUser) {
-                // Если нет profileId/houseId и не авторизован - требуем авторизацию
-                showAuthRequired();
+                // Если нет profileId/houseId и не авторизован - показываем публичную ленту
+                loadPublicGallery();
             } else {
                 // Если авторизован и нет profileId/houseId - показываем список своих профилей и домиков
                 loadUserProfiles();
@@ -597,7 +649,70 @@
             `;
         }
 
+        // Публичная лента для неавторизованных пользователей (и для авторизованных при выборе режима "Публичные")
+        async function loadPublicGallery() {
+            currentDataScope = 'public';
+            document.getElementById('profileName').textContent = 'Публичная лента фотографий';
+            document.getElementById('profileMeta').textContent = 'Фото из профилей и домиков, доступных без авторизации';
+
+            try {
+                // Публичные профили
+                const publicProfilesSnapshot = await db.collection('profiles')
+                    .where('public', '==', true)
+                    .where('appKey', '==', 'wega-hpg-profile')
+                    .get();
+
+                // Домики сообщества (отдельного признака публичности нет, считаем их общедоступными как в houses.html)
+                const housesSnapshot = await db.collection('houses')
+                    .orderBy('created', 'desc')
+                    .get();
+
+                allLoadedProfiles = [];
+
+                publicProfilesSnapshot.forEach(doc => {
+                    allLoadedProfiles.push({
+                        id: doc.id,
+                        type: 'profile',
+                        ...doc.data()
+                    });
+                });
+
+                housesSnapshot.forEach(doc => {
+                    allLoadedProfiles.push({
+                        id: doc.id,
+                        type: 'house',
+                        ...doc.data()
+                    });
+                });
+
+                if (allLoadedProfiles.length === 0) {
+                    document.getElementById('galleryGrid').innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 64px; margin-bottom: 20px;">📭</div>
+                            <h3>Пока нет публичных галерей</h3>
+                            <p>Когда пользователи поделятся профилями или домиками, их фото появятся здесь</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Сортируем по дате изменения/создания (новые сверху)
+                allLoadedProfiles.sort((a, b) => {
+                    const timeA = a.modified?.toMillis() || a.created?.toMillis() || 0;
+                    const timeB = b.modified?.toMillis() || b.created?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+
+                renderContent();
+
+            } catch (error) {
+                console.error('Ошибка загрузки публичной галереи:', error);
+                showError('Не удалось загрузить публичную галерею');
+            }
+        }
+
         async function loadUserProfiles() {
+            currentDataScope = 'my';
             document.getElementById('profileName').textContent = 'Мои профили и домики';
             document.getElementById('profileMeta').textContent = 'Выберите профиль или домик для управления';
 
@@ -675,6 +790,37 @@
             const container = document.getElementById('galleryGrid');
             const showOnlyWithPhotos = document.getElementById('onlyWithPhotosFilter')?.checked || false;
 
+            // Переключатель области данных (только для авторизованных)
+            let scopeControls = '';
+            if (currentUser) {
+                scopeControls = `
+                    <div class="scope-switcher">
+                        <button class="scope-btn ${currentDataScope === 'my' ? 'active' : ''}" onclick="switchScope('my')">
+                            � Мои
+                        </button>
+                        <button class="scope-btn ${currentDataScope === 'public' ? 'active' : ''}" onclick="switchScope('public')">
+                            🌍 Публичные
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Фильтр "только с фото" для режима папок
+            let foldersFilter = '';
+            if (currentViewMode === 'folders') {
+                foldersFilter = `
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f8f9fa; padding: 8px 16px; border-radius: 20px; border: 1px solid #e0e0e0;">
+                        <span style="font-size: 14px; color: #333;">Только с фото</span>
+                        <div style="position: relative; width: 40px; height: 20px; background: ${showOnlyWithPhotos ? '#667eea' : '#ccc'}; border-radius: 20px; transition: background 0.3s;">
+                            <div style="position: absolute; top: 2px; left: ${showOnlyWithPhotos ? '22px' : '2px'}; width: 16px; height: 16px; background: white; border-radius: 50%; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                        </div>
+                        <input type="checkbox" id="onlyWithPhotosFilter" style="display: none;" 
+                               ${showOnlyWithPhotos ? 'checked' : ''} 
+                               onchange="renderContent()">
+                    </label>
+                `;
+            }
+
             // Верхняя панель управления
             let controlsHtml = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
@@ -687,17 +833,10 @@
                         </button>
                     </div>
 
-                    ${currentViewMode === 'folders' ? `
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f8f9fa; padding: 8px 16px; border-radius: 20px; border: 1px solid #e0e0e0;">
-                            <span style="font-size: 14px; color: #333;">Только с фото</span>
-                            <div style="position: relative; width: 40px; height: 20px; background: ${showOnlyWithPhotos ? '#667eea' : '#ccc'}; border-radius: 20px; transition: background 0.3s;">
-                                <div style="position: absolute; top: 2px; left: ${showOnlyWithPhotos ? '22px' : '2px'}; width: 16px; height: 16px; background: white; border-radius: 50%; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
-                            </div>
-                            <input type="checkbox" id="onlyWithPhotosFilter" style="display: none;" 
-                                   ${showOnlyWithPhotos ? 'checked' : ''} 
-                                   onchange="renderContent()">
-                        </label>
-                    ` : ''}
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+                        ${scopeControls}
+                        ${foldersFilter}
+                    </div>
                 </div>
             `;
 
@@ -714,6 +853,23 @@
         function switchView(mode) {
             currentViewMode = mode;
             renderContent();
+        }
+
+        function switchScope(scope) {
+            if (scope === currentDataScope) return;
+
+            // Для неавторизованных режим "Мои" недоступен
+            if (!currentUser && scope === 'my') {
+                return;
+            }
+
+            currentDataScope = scope;
+
+            if (scope === 'my') {
+                loadUserProfiles();
+            } else {
+                loadPublicGallery();
+            }
         }
 
         function renderAllPhotosView(container) {
@@ -756,11 +912,14 @@
             allPhotos.forEach(photo => {
                 const isHouse = photo._type === 'house';
                 const icon = isHouse ? '🏠' : '🌱';
-                const link = isHouse ? `gallery.html?house=${photo._profileId}` : `gallery.html?profile=${photo._profileId}`;
+                const galleryLink = isHouse ? `gallery.html?house=${photo._profileId}` : `gallery.html?profile=${photo._profileId}`;
                 const date = photo.date ? new Date(photo.date).toLocaleDateString('ru-RU') : '';
 
+                // Ссылка для основного клика (на фото) - ведет на просмотр фото с деталями
+                const mainLink = getSourceUrl(photo._type, photo._profileId, encodeURIComponent(photo.url));
+                
                 html += `
-                    <div class="photo-card-modern" onclick="window.location.href='${link}'">
+                    <div class="photo-card-modern" onclick="window.location.href='${mainLink}'">
                         <img src="${photo.url}" loading="lazy" 
                              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\' fill=\\'%23ccc\\'%3E%3Cpath d=\\'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z\\'/%3E%3C/svg%3E'">
                         
@@ -777,6 +936,12 @@
                                 ${photo.description ? `
                                     <div class="photo-desc-modern">${escapeHtml(photo.description)}</div>
                                 ` : ''}
+                                <div style="margin-top: 10px;">
+                                    <!-- Кнопка Источник ведет на Карточку Профиля (без фото параметра) -->
+                                    <button class="photo-source-button" onclick="openPhotoSource('${photo._type}', '${photo._profileId}', '', event)">
+                                        🔗 Источник
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -830,7 +995,7 @@
                     <div onclick="window.location.href='${link}'" 
                          style="background: white; border-radius: 12px; padding: 20px; cursor: pointer; 
                                 transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                border: 2px solid transparent;">
+                                border: 2px solid transparent; position: relative;">
                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                             ${iconHtml}
                             <div style="flex: 1; min-width: 0;">
@@ -852,30 +1017,35 @@
                             </div>
                         ` : ''}
                         <div style="display: flex; gap: 15px; padding-top: 12px; 
-                                    border-top: 1px solid #f0f0f0; font-size: 13px; color: #666;">
-                            ${isHouse ? `
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>📝</span>
-                                    <strong>${profile.postsCount || 0}</strong> постов
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>👁️</span>
-                                    ${profile.views || 0}
-                                </div>
-                            ` : `
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>📸</span>
-                                    <strong>${galleryCount}</strong> фото
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>👁️</span>
-                                    ${profile.views || 0}
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span>💬</span>
-                                    ${profile.commentsCount || 0}
-                                </div>
-                            `}
+                                    border-top: 1px solid #f0f0f0; font-size: 13px; color: #666; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                                ${isHouse ? `
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>📝</span>
+                                        <strong>${profile.postsCount || 0}</strong> постов
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>👁️</span>
+                                        ${profile.views || 0}
+                                    </div>
+                                ` : `
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>📸</span>
+                                        <strong>${galleryCount}</strong> фото
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>👁️</span>
+                                        ${profile.views || 0}
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <span>💬</span>
+                                        ${profile.commentsCount || 0}
+                                    </div>
+                                `}
+                            </div>
+                            <button class="photo-source-button" style="background: #fff7e0;" onclick="openPhotoSource('${isHouse ? 'house' : 'profile'}', '${profile.id}', '', event)">
+                                🔗 Источник
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1061,6 +1231,8 @@
                 const index = photos.indexOf(photo);
                 const date = photo.date ? new Date(photo.date).toLocaleDateString('ru-RU') : 'Без даты';
                 const isOwner = currentUser && profileData && currentUser.uid === profileData.userId;
+                const sourceType = houseId ? 'house' : 'profile';
+                const sourceId = houseId || profileId;
                 
                 html += `
                     <div class="gallery-item" onclick="openLightbox('${escapeJs(photo.url)}')">
@@ -1073,12 +1245,44 @@
                         <div class="gallery-item-info">
                             <div class="gallery-item-date">📅 ${date}</div>
                             <div class="gallery-item-description">${escapeHtml(photo.description || 'Без описания')}</div>
+                            <div style="margin-top: 8px;">
+                                <!-- Внутри галереи: Источник ведет на Карточку Профиля -->
+                                <button class="photo-source-button" onclick="openPhotoSource('${sourceType}', '${sourceId}', '', event)">
+                                    🔗 Источник
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
             html += '</div>';
             document.getElementById('galleryGrid').innerHTML = html;
+        }
+
+        function getSourceUrl(type, id, photoParam) {
+            if (type === 'house') {
+                // Если есть фото - идем к галерее, иначе просто в домик
+                if (photoParam) {
+                    return `house.html?id=${id}#gallerySection`;
+                }
+                return `house.html?id=${id}`;
+            }
+            
+            // Если есть фото - открываем Lightbox с подробностями (index.html?profile=...&photo=...)
+            if (photoParam) {
+                return `index.html?profile=${id}&photo=${photoParam}`;
+            }
+            // Иначе (кнопка Источник) - открываем саму Карточку Профиля (модалку) через хэш
+            return `index.html#profile-${id}`;
+        }
+
+        function openPhotoSource(type, id, photoParam, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            const url = getSourceUrl(type, id, photoParam);
+            window.location.href = url;
         }
 
 
