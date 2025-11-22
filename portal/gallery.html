@@ -444,6 +444,7 @@
         let currentUser = null;
         let profileData = null;
         let photos = [];
+        let allLoadedProfiles = [];
 
         const urlParams = new URLSearchParams(window.location.search);
         const profileId = urlParams.get('profile');
@@ -511,9 +512,9 @@
                 }
 
                 // Собираем профили
-                const profiles = [];
+                allLoadedProfiles = [];
                 profilesSnapshot.forEach(doc => {
-                    profiles.push({
+                    allLoadedProfiles.push({
                         id: doc.id,
                         type: 'profile',
                         ...doc.data()
@@ -522,7 +523,7 @@
 
                 // Собираем домики
                 housesSnapshot.forEach(doc => {
-                    profiles.push({
+                    allLoadedProfiles.push({
                         id: doc.id,
                         type: 'house',
                         ...doc.data()
@@ -530,78 +531,13 @@
                 });
 
                 // Сортируем по дате изменения (новые сверху)
-                profiles.sort((a, b) => {
+                allLoadedProfiles.sort((a, b) => {
                     const timeA = a.modified?.toMillis() || 0;
                     const timeB = b.modified?.toMillis() || 0;
                     return timeB - timeA;
                 });
 
-                let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">';
-                
-                profiles.forEach(profile => {
-                    const isHouse = profile.type === 'house';
-                    const icon = isHouse ? '🏠' : '🌱';
-                    const link = isHouse ? `gallery.html?house=${profile.id}` : `gallery.html?profile=${profile.id}`;
-                    const galleryCount = (profile.gallery && profile.gallery.length) || 0;
-                    const date = profile.modified?.toDate().toLocaleDateString('ru-RU') || '';
-                    
-                    html += `
-                        <div onclick="window.location.href='${link}'" 
-                             style="background: white; border-radius: 12px; padding: 20px; cursor: pointer; 
-                                    transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                    border: 2px solid transparent;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                                <div style="font-size: 32px;">${icon}</div>
-                                <div style="flex: 1; min-width: 0;">
-                                    <div style="font-weight: 600; font-size: 16px; color: #333; 
-                                                overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        ${escapeHtml(profile.name)}
-                                    </div>
-                                    <div style="font-size: 12px; color: #999; margin-top: 4px;">
-                                        ${isHouse ? 'Домик • ' : ''}Изменено: ${date}
-                                    </div>
-                                </div>
-                            </div>
-                            ${profile.description ? `
-                                <div style="color: #666; font-size: 14px; line-height: 1.4; 
-                                            margin-bottom: 12px; overflow: hidden; 
-                                            text-overflow: ellipsis; display: -webkit-box;
-                                            -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                                    ${escapeHtml(profile.description)}
-                                </div>
-                            ` : ''}
-                            <div style="display: flex; gap: 15px; padding-top: 12px; 
-                                        border-top: 1px solid #f0f0f0; font-size: 13px; color: #666;">
-                                ${isHouse ? `
-                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                        <span>📝</span>
-                                        <strong>${profile.postsCount || 0}</strong> постов
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                        <span>👁️</span>
-                                        ${profile.views || 0}
-                                    </div>
-                                ` : `
-                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                        <span>📸</span>
-                                        <strong>${galleryCount}</strong> фото
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                        <span>👁️</span>
-                                        ${profile.views || 0}
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                        <span>💬</span>
-                                        ${profile.commentsCount || 0}
-                                    </div>
-                                `}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
-                document.getElementById('galleryGrid').innerHTML = html;
+                renderProfilesList();
 
                 // Добавляем hover эффект через CSS
                 const style = document.createElement('style');
@@ -618,6 +554,122 @@
                 console.error('Ошибка загрузки профилей:', error);
                 showError('Не удалось загрузить профили');
             }
+        }
+
+        function renderProfilesList() {
+            const showOnlyWithPhotos = document.getElementById('onlyWithPhotosFilter')?.checked || false;
+            
+            let profilesToRender = allLoadedProfiles;
+            if (showOnlyWithPhotos) {
+                profilesToRender = allLoadedProfiles.filter(p => p.gallery && p.gallery.length > 0);
+            }
+
+            // Фильтр UI
+            let html = `
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f8f9fa; padding: 8px 16px; border-radius: 20px; border: 1px solid #e0e0e0;">
+                        <span style="font-size: 14px; color: #333;">Только с фото</span>
+                        <div style="position: relative; width: 40px; height: 20px; background: ${showOnlyWithPhotos ? '#667eea' : '#ccc'}; border-radius: 20px; transition: background 0.3s;">
+                            <div style="position: absolute; top: 2px; left: ${showOnlyWithPhotos ? '22px' : '2px'}; width: 16px; height: 16px; background: white; border-radius: 50%; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                        </div>
+                        <input type="checkbox" id="onlyWithPhotosFilter" style="display: none;" 
+                               ${showOnlyWithPhotos ? 'checked' : ''} 
+                               onchange="renderProfilesList()">
+                    </label>
+                </div>
+            `;
+
+            if (profilesToRender.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте изменить настройки фильтра</p>
+                    </div>
+                `;
+                document.getElementById('galleryGrid').innerHTML = html;
+                return;
+            }
+
+            html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">';
+            
+            profilesToRender.forEach(profile => {
+                const isHouse = profile.type === 'house';
+                const link = isHouse ? `gallery.html?house=${profile.id}` : `gallery.html?profile=${profile.id}`;
+                const galleryCount = (profile.gallery && profile.gallery.length) || 0;
+                const date = profile.modified?.toDate().toLocaleDateString('ru-RU') || '';
+                
+                let iconHtml = `<div style="font-size: 32px;">${isHouse ? '🏠' : '🌱'}</div>`;
+                
+                // Рандомное превью
+                if (profile.gallery && profile.gallery.length > 0) {
+                    const randomPhoto = profile.gallery[Math.floor(Math.random() * profile.gallery.length)];
+                    if (randomPhoto && randomPhoto.url) {
+                        iconHtml = `
+                            <div style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #eee;">
+                                <img src="${randomPhoto.url}" style="width: 100%; height: 100%; object-fit: cover;" alt="preview">
+                            </div>
+                        `;
+                    }
+                }
+
+                html += `
+                    <div onclick="window.location.href='${link}'" 
+                         style="background: white; border-radius: 12px; padding: 20px; cursor: pointer; 
+                                transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                border: 2px solid transparent;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            ${iconHtml}
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; font-size: 16px; color: #333; 
+                                            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    ${escapeHtml(profile.name)}
+                                </div>
+                                <div style="font-size: 12px; color: #999; margin-top: 4px;">
+                                    ${isHouse ? 'Домик • ' : ''}Изменено: ${date}
+                                </div>
+                            </div>
+                        </div>
+                        ${profile.description ? `
+                            <div style="color: #666; font-size: 14px; line-height: 1.4; 
+                                        margin-bottom: 12px; overflow: hidden; 
+                                        text-overflow: ellipsis; display: -webkit-box;
+                                        -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                ${escapeHtml(profile.description)}
+                            </div>
+                        ` : ''}
+                        <div style="display: flex; gap: 15px; padding-top: 12px; 
+                                    border-top: 1px solid #f0f0f0; font-size: 13px; color: #666;">
+                            ${isHouse ? `
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span>📝</span>
+                                    <strong>${profile.postsCount || 0}</strong> постов
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span>👁️</span>
+                                    ${profile.views || 0}
+                                </div>
+                            ` : `
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span>📸</span>
+                                    <strong>${galleryCount}</strong> фото
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span>👁️</span>
+                                    ${profile.views || 0}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span>💬</span>
+                                    ${profile.commentsCount || 0}
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('galleryGrid').innerHTML = html;
         }
 
         async function loadGallery() {
