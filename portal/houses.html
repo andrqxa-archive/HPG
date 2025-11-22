@@ -44,25 +44,69 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 20px;
-            font-weight: bold;
+            gap: 10px;
             color: #667eea;
+        }
+
+        .logo a {
+            display: flex;
+            align-items: center;
             text-decoration: none;
+            color: inherit;
             transition: opacity 0.2s;
         }
 
-        .logo:hover {
+        .logo a:hover {
             opacity: 0.8;
         }
 
         .logo-icon {
-            font-size: 28px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon img {
+            height: 28px;
+            width: auto;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            line-height: 1.1;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: #777;
+            line-height: 1.1;
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            justify-content: center;
         }
 
         .header-actions {
             display: flex;
             gap: 8px;
+            align-items: center;
+        }
+
+        #auth-section {
+            flex-shrink: 0;
         }
 
         .btn {
@@ -318,19 +362,44 @@
     <!-- Шапка -->
     <div class="header">
         <div class="header-content">
-            <a href="index.html" class="logo">
-                <span class="logo-icon">🌱</span>
-                <span>HPG Community</span>
-            </a>
-            <div class="header-actions">
-                <a href="index.html" class="btn btn-secondary">
-                    📚 Каталог профилей
+            <div class="logo">
+                <a href="https://wega-project.github.io/" class="logo-icon-link">
+                    <span class="logo-icon">
+                        <img src="assets/wega-W.svg" alt="WEGA logo">
+                    </span>
                 </a>
-                <button id="create-house-btn" class="btn btn-primary" onclick="showCreateHouseForm()" style="display: none;">
-                    ➕ Создать домик
-                </button>
-                <button id="login-btn" class="btn btn-primary" onclick="loginWithGoogle()" style="display: none;">
-                    🔐 Войти
+                <a href="index.html" class="logo-text-link">
+                    <span class="logo-text">
+                        <span class="logo-title">HPG Community</span>
+                        <span class="logo-subtitle">Часть открытой экосистемы WEGA-Project</span>
+                    </span>
+                </a>
+            </div>
+            <div class="header-center">
+                <div class="header-actions">
+                    <a href="index.html" class="btn btn-secondary">
+                        📚 Библиотека профилей
+                    </a>
+                    <a href="gallery.html" class="btn btn-secondary">
+                        📸 Галерея
+                    </a>
+                    <button class="btn btn-secondary" disabled style="opacity: 0.5; cursor: default;">
+                        🏠 К домикам
+                    </button>
+                    <a href="../hpg.html" class="btn btn-secondary">
+                        🧪 Калькулятор
+                    </a>
+                    <a href="https://github.com/WEGA-project/wega-hpg/wiki" class="btn btn-secondary" target="_blank">
+                        📖 Wiki
+                    </a>
+                    <button id="create-house-btn" class="btn btn-primary" onclick="showCreateHouseForm()" style="display: none;">
+                        ➕ Создать домик
+                    </button>
+                </div>
+            </div>
+            <div id="auth-section">
+                <button id="login-btn" class="btn btn-primary" onclick="loginWithGoogle()" style="display: none;" title="Войти через Google">
+                    🔐 <span class="login-text">Войти через Google</span>
                 </button>
                 <div id="user-info" style="display: none; align-items: center; gap: 10px;">
                     <img id="user-avatar" style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none;" alt="">

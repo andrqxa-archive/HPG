@@ -15,9 +15,97 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: url('assets/background01.jpg') center/cover fixed no-repeat;
+            background-color: #5a9e9e;
             min-height: 100vh;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #667eea;
+        }
+
+        .logo a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            transition: opacity 0.2s;
+        }
+
+        .logo a:hover {
+            opacity: 0.8;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon img {
+            height: 28px;
+            width: auto;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            line-height: 1.1;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: #777;
+            line-height: 1.1;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #auth-section {
+            flex-shrink: 0;
         }
 
         .container {
@@ -25,36 +113,39 @@
             margin: 0 auto;
         }
 
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 20px 30px;
-            border-radius: 12px;
+        .page-header {
+            text-align: center;
+            color: white;
             margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px 20px;
+            box-shadow: none;
+            background: transparent;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
 
         .header-title {
             display: flex;
             align-items: center;
             gap: 12px;
+            justify-content: center;
         }
 
         .profile-name {
-            font-size: 20px;
-            font-weight: 600;
-            color: #667eea;
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
             margin-bottom: 4px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .profile-meta {
-            font-size: 14px;
-            color: #666;
+            font-size: 16px;
+            color: #f0f0f0;
+            opacity: 0.95;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
         }
 
         .btn {
@@ -449,8 +540,58 @@
     </style>
 </head>
 <body>
+    <!-- Глобальная шапка портала HPG -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <a href="https://wega-project.github.io/" class="logo-icon-link">
+                    <span class="logo-icon">
+                        <img src="assets/wega-W.svg" alt="WEGA logo">
+                    </span>
+                </a>
+                <a href="index.html" class="logo-text-link">
+                    <span class="logo-text">
+                        <span class="logo-title">HPG Community</span>
+                        <span class="logo-subtitle">Часть открытой экосистемы WEGA-Project</span>
+                    </span>
+                </a>
+            </div>
+            <div class="header-center">
+                <div class="header-actions">
+                    <a href="index.html" class="btn btn-secondary">
+                        📚 Библиотека профилей
+                    </a>
+                    <button class="btn btn-secondary" disabled style="opacity: 0.5; cursor: default;">
+                        📸 Галерея
+                    </button>
+                    <a href="houses.html" class="btn btn-secondary">
+                        🏠 К домикам
+                    </a>
+                    <a href="../hpg.html" class="btn btn-secondary">
+                        🧪 Калькулятор
+                    </a>
+                    <a href="https://github.com/WEGA-project/wega-hpg/wiki" class="btn btn-secondary" target="_blank">
+                        📖 Wiki
+                    </a>
+                </div>
+            </div>
+            <div id="auth-section">
+                <!-- Кнопка входа (показывается когда не авторизован) -->
+                <button id="login-btn" class="btn btn-primary" onclick="loginWithGoogle()" style="display: none;" title="Войти через Google">
+                    🔐 <span class="login-text">Войти через Google</span>
+                </button>
+                <!-- Информация о пользователе (показывается когда авторизован) -->
+                <div id="user-info" style="display: none; align-items: center; gap: 10px;">
+                    <img id="user-avatar" style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none;" alt="">
+                    <span id="user-name" style="font-size: 13px; font-weight: 500;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-        <div class="header">
+        <!-- Локальный заголовок страницы галереи -->
+        <div class="page-header">
             <div class="header-title">
                 <span style="font-size: 32px;">📸</span>
                 <div>
@@ -617,9 +758,40 @@
         const profileId = urlParams.get('profile');
         const houseId = urlParams.get('house');
 
+        // Авторизация через Google
+        async function loginWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                alert('❌ Ошибка входа: ' + error.message);
+            }
+        }
+
         // Авторизация
         auth.onAuthStateChanged(user => {
             currentUser = user;
+            
+            // Обновляем UI авторизации в шапке
+            const loginBtn = document.getElementById('login-btn');
+            const userInfo = document.getElementById('user-info');
+            const userAvatar = document.getElementById('user-avatar');
+            const userName = document.getElementById('user-name');
+
+            if (loginBtn && userInfo && userAvatar && userName) {
+                if (user) {
+                    loginBtn.style.display = 'none';
+                    userInfo.style.display = 'flex';
+                    userAvatar.style.display = 'block';
+                    userAvatar.src = user.photoURL || '';
+                    userName.textContent = user.displayName || user.email;
+                } else {
+                    loginBtn.style.display = 'block';
+                    userInfo.style.display = 'none';
+                    userAvatar.style.display = 'none';
+                }
+            }
             
             if (profileId) {
                 // Если указан profileId, загружаем галерею профиля (доступно всем)
@@ -796,7 +968,7 @@
                 scopeControls = `
                     <div class="scope-switcher">
                         <button class="scope-btn ${currentDataScope === 'my' ? 'active' : ''}" onclick="switchScope('my')">
-                            � Мои
+                            👤 Мои
                         </button>
                         <button class="scope-btn ${currentDataScope === 'public' ? 'active' : ''}" onclick="switchScope('public')">
                             🌍 Публичные
