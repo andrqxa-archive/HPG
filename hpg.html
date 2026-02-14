@@ -7646,10 +7646,8 @@ K:Mg до 3,6 после 3,6</textarea>
                 if (!pump) {
                     return;
                 }
-                const grams = valueInput.value.trim();
-                if (grams === '' || grams === '0' || grams === '0.00') {
-                    return;
-                }
+                const gramsRaw = valueInput.value.trim();
+                const grams = gramsRaw === '' ? '0' : gramsRaw;
                 mixlink += `${encodeURIComponent(pump)}=${encodeURIComponent(grams)}&`;
             });
 
@@ -7659,8 +7657,9 @@ K:Mg до 3,6 после 3,6</textarea>
                 const valueInput = document.getElementById('g2gCmplx');
                 if (pumpInput && valueInput) {
                     const pump = pumpInput.value.trim();
-                    const grams = valueInput.value.trim();
-                    if (pump && grams !== '' && grams !== '0' && grams !== '0.00') {
+                    const gramsRaw = valueInput.value.trim();
+                    const grams = gramsRaw === '' ? '0' : gramsRaw;
+                    if (pump) {
                         mixlink += `${encodeURIComponent(pump)}=${encodeURIComponent(grams)}&`;
                     }
                 }
@@ -7685,10 +7684,8 @@ K:Mg до 3,6 после 3,6</textarea>
                     if (!pump) {
                         return;
                     }
-                    const grams = valueInput.value.trim();
-                    if (grams === '' || grams === '0' || grams === '0.00') {
-                        return;
-                    }
+                    const gramsRaw = valueInput.value.trim();
+                    const grams = gramsRaw === '' ? '0' : gramsRaw;
                     mixlink += `${encodeURIComponent(pump)}=${encodeURIComponent(grams)}&`;
                 });
             }
