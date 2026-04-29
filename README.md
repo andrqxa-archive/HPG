@@ -1,68 +1,89 @@
 # Калькулятор HPG
-Расшифровывается как `Hydroponic Profile Generator`, что означает генератор профиля для гидропоники.
+
+`Hydroponic Profile Generator` — комплексный инструмент для расчёта, коррекции и ведения профилей питания в гидропонике.
 
 <div align="center">
-<a href="images/calc.png"><img src="images/calc.png" width="300"></a> &emsp; <a href="images/micro.png"><img src="images/micro.png" width="300"></a>&emsp; <a href="images/mono_solutions.png"><img src="images/mono_solutions.png" width="300"></a>
+  <a href="images/calc.png"><img src="images/calc.png" width="280"></a>
+  &emsp;
+  <a href="images/micro.png"><img src="images/micro.png" width="280"></a>
+  &emsp;
+  <a href="images/mono_solutions.png"><img src="images/mono_solutions.png" width="280"></a>
 </div>
 
-
-[**СКАЧАТЬ весь репозиторий**](https://github.com/WEGA-project/WEGA-HPG/archive/refs/heads/master.zip)
-
-[Примеры профилей питания](https://github.com/WEGA-project/wega-hpg/blob/master/examples.zip)
-
-Содержание
-=================
-<!--ts-->
-* [Описание](#overview)
-* [Основные возможности](#main_funtions)
-* [Актуальные версии](#versions)
-* [Как собрать калькулятор под свою систему](#how_to_build)
-<!--te-->
 ---
-### Описание <a name="overview"></a>
-Данная программа является графическим приложением созданым для анализа, коррекции и генерации профилей минерального питания растений при гидропонном методе выращивания.
 
-Она позволяет рассчитать навески 7 основных минеральных солей содержащих макроэлементы и 8 дополнительных компонентов содержащих микроэлементы.
+## Быстрый доступ
 
-Более подробно можно и нужно почитать на [wiki](https://github.com/WEGA-project/WEGA-HPG/wiki)
+- **📘 Документация:** [Wiki HPG](https://github.com/WEGA-project/WEGA-HPG/wiki) — инструкции по настройкам, формулам и практическим сценариям.
+- **🌐 Веб-калькулятор:** [HTML5-версия](https://wega-project.github.io/wega-hpg/hpg.html) — работает прямо в браузере.
+- **📚 Портал профилей:** [wega-hpg/portal](https://wega-project.github.io/wega-hpg/portal/) — берите готовые рецепты, делитесь своими, смотрите журналы и галереи.
 
 ---
-### Основные возможности <a name="main_funtions"></a>
-* Этот калькулятор основан на ионнном балансе
-* Создание профиля питания через `NPKCaMgSCl`
-* Калькулятор покажет когда профиль не собирается и подскажет как это исправить
-* Получение расчетного `ЕС`
-* Коррекция профиля питания через коэффициенты
-* Составление микрокомплекса
-* Коррекция раствора
-* Разделение концентратов на А и Б
-* Расчет стоимости удобрений
-* Помощь при изготовлении монорастворов(плотность, растворимость)
-* Отправка профиля на изготовление в миксер
-* Ведение журнала
-* Загрузка и обмен профилями
-* Загрузка удобрений из профилей
-* Корректировка раствора
 
-и многое, многое другое.
+## 📥 Скачать калькулятор
+
+- **🐧 Linux x86_64:** [скачать бинарник](https://github.com/WEGA-project/WEGA-HPG/raw/master/hpg)
+- **🪟 Windows:** [скачать .exe](https://github.com/WEGA-project/WEGA-HPG/raw/master/hpg.exe)
+- **📦 Полный архив:** [master.zip](https://github.com/WEGA-project/WEGA-HPG/archive/refs/heads/master.zip)
+- **📋 Примеры профилей:** [examples.zip](https://github.com/WEGA-project/wega-hpg/blob/master/examples.zip)
 
 ---
-### Актуальные версии <a name="versions"></a>
 
-[Liniux x86_64](https://github.com/WEGA-project/WEGA-HPG/raw/master/hpg)
+## Навигация
 
-[Windows](https://github.com/WEGA-project/WEGA-HPG/raw/master/hpg.exe)
-
-[Примеры профилей питания](https://github.com/WEGA-project/wega-hpg/blob/master/examples.zip)
+- [Зачем нужен HPG](#overview)
+- [Что умеет](#features)
+- [Каналы загрузки и сборка](#versions)
+- [Как собрать под свою систему](#how_to_build)
 
 ---
-### Как собрать калькулятор под свою систему <a name="how_to_build"></a>
-1. Качаем свежие исходники ([тут всегда последняя версия](https://github.com/WEGA-project/WEGA-HPG/archive/master.zip)) распаковываем папку с проектом в удобное место.
 
-2. Качаем [lazarus](https://www.lazarus-ide.org/index.php?page=downloads) для своей системы и устанавливаем (все три компоненты).
+## Зачем нужен HPG <a name="overview"></a>
 
-3. Запускаем lazarus нажимаем `ПРОЕКТ -> ОТКРЫТЬ ПРОЕКТ` и указываем папку с исходниками калькулятора из пункта 1
+Приложение помогает проектировать минеральное питание растений, сравнивать профили и вести протоколы выращивания. В основе — баланс элементов `NPKCaMgSCl` с учётом ионов и совместимости солей.
 
-4. Нажимаем зеленую стрелку или кнопку `F9` и получаем рабочий калькулятор.
+- Гибкая настройка макро- и микро-профилей.
+- Визуальное управление соотношениями и навесками.
+- История изменений, корректоры, обмен профилями.
 
-Исполняемый файл можно копировать и передавать. Lazarus для него уже не требуется.
+Больше сценариев и инструкций — на [Wiki HPG](https://github.com/WEGA-project/WEGA-HPG/wiki).
+
+---
+
+## Что умеет <a name="features"></a>
+
+- **Ионный баланс:** автоматический пересчёт соотношений `N`, `P`, `K`, `Ca`, `Mg`, `S`, `Cl`.
+- **Концентраты A/B:** расчёт монорастворов, концентратов и контроль растворимости.
+- **Микроэлементы:** покомпонентно и через комплексы с ограничением по бору.
+- **Корректор раствора:** сценарии корректировки объёма и EC без полного перезапуска системы.
+- **Журналы и история:** храните протоколы, версии профилей, следите за изменениями.
+- **Интеграции:** обмен файлами `.hpg`, работа с миксером WEGA, портал профилей.
+
+И это лишь базовый набор — остальные возможности разбираем в руководствах на wiki.
+
+---
+
+## Каналы загрузки и сборка <a name="versions"></a>
+
+| Канал | Где взять | Для чего |
+|-------|-----------|---------|
+| Веб-версия | [wega-project.github.io/wega-hpg/hpg.html](https://wega-project.github.io/wega-hpg/hpg.html) | Быстрый старт без установки |
+| Linux | [hpg (x86_64)](https://github.com/WEGA-project/WEGA-HPG/raw/master/hpg) | Натívный бинарник для Linux |
+| Windows | [hpg.exe](https://github.com/WEGA-project/WEGA-HPG/raw/master/hpg.exe) | Готовый исполняемый файл |
+| Архив | [master.zip](https://github.com/WEGA-project/WEGA-HPG/archive/refs/heads/master.zip) | Полный репозиторий |
+| Примеры | [examples.zip](https://github.com/WEGA-project/wega-hpg/blob/master/examples.zip) | Готовые профили питания |
+
+---
+
+## Как собрать калькулятор под свою систему <a name="how_to_build"></a>
+
+1. **Скачать исходники:** возьмите свежий архив или клоните репозиторий.
+2. **Установить Lazarus:** [скачать IDE](https://www.lazarus-ide.org/index.php?page=downloads) и поставить все компоненты.
+3. **Открыть проект:** в Lazarus → `Проект → Открыть проект` → укажите директорию с исходниками.
+4. **Собрать:** нажмите `F9` или зелёную стрелку. Полученный бинарник можно распространять без IDE.
+
+> 💡 **Подсказка:** после сборки загляните на [Wiki HPG](https://github.com/WEGA-project/WEGA-HPG/wiki), чтобы настроить формы `Macro`, `Micro`, `Correction` и выбрать подходящие профили с портала.
+
+---
+
+Готовы к работе? Скачайте нужный канал, изучите wiki и присоединяйтесь к сообществу HPG.*** End Patch
